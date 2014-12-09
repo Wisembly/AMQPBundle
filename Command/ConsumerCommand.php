@@ -13,7 +13,9 @@ use Symfony\Component\Console\Input\InputOption,
 use Swarrot\Consumer,
     Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor;
 
-use Wisembly\AmqpBundle\Processor\CommandProcessor;
+use Wisembly\AmqpBundle\Processor\CommandProcessor,
+    Wisembly\AmqpBundle\Processor\RpcServerProcessor;
+
 
 /**
  * RabbitMQ Consumer
@@ -31,7 +33,8 @@ class ConsumerCommand extends ContainerAwareCommand
 
         $this->addArgument('gate', InputArgument::REQUIRED, 'AMQP Gate to use');
 
-        $this->addOption('poll-interval', null, InputOption::VALUE_REQUIRED, 'poll interval, in micro-seconds', 50000);
+        $this->addOption('rpc', null, InputOption::VALUE_NONE, 'Use a RPC mechanism ?')
+             ->addOption('poll-interval', null, InputOption::VALUE_REQUIRED, 'poll interval, in micro-seconds', 50000);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -48,6 +51,11 @@ class ConsumerCommand extends ContainerAwareCommand
         $producer = $broker->getProducer($gate);
 
         $processor = new CommandProcessor($logger, new ProcessBuilder, $provider, $producer, $container->getParameter('wisembly.core.path.console'), $environment, $input->getOption('verbose'));
+
+        // if we want a rpc mechanism, let's wrap a rpc server processor
+        if (true === $input->getOption('rpc')) {
+            $processor = new RpcServerProcessor($processor, $producer, $logger);
+        }
 
         // Wrap processor in an Swarrot ExceptionCatcherProcessor to avoid breaking processor if an error occurs
         $consumer  = new Consumer($provider, new ExceptionCatcherProcessor($processor, $logger));
