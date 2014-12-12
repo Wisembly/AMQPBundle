@@ -12,6 +12,10 @@
         <service id="wisembly.amqp.broker.oldsound" class="Wisembly\AmqpBundle\Broker\OldsoundBroker">
             <tag name="wisembly.amqp.broker" alias="oldsound" />
         </service>
+
+        <service id="wisembly.amqp.collector" class="Wisembly\AmqpBundle\DataCollector\AMQPDataCollector">
+            <tag name="data_collector" template="WisemblyAmqpBundle:Collector:MessageCollector" id="amqp_collector" />
+        </service>
     </services>
 </container>
 
