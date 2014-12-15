@@ -27,6 +27,8 @@
             <argument type="service" id="wisembly.amqp.broker" /> <!-- declared in a compiler pass //-->
             <argument>%wisembly.amqp.gates%</argument>
         </service>
+
+        <service id="wisembly.amqp.gates" class="Wisembly\CoreBundle\Domain\Bag" />
     </services>
 </container>
 
