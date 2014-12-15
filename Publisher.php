@@ -8,7 +8,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 use Swarrot\Broker\Message;
 
-use Wisembly\AmqpBundle\EventListener\MessagePublishedEvent;
+use Wisembly\CoreBundle\Domain\Bag,
+    Wisembly\AmqpBundle\EventListener\MessagePublishedEvent;
 
 /**
  * Publisher for AMQP Messages
@@ -27,7 +28,7 @@ class Publisher
     private $gates;
 
     /** @param array $gates Gates registered in our config */
-    public function __construct(EventDispatcherInterface $dispatcher, BrokerInterface $broker, array $gates)
+    public function __construct(EventDispatcherInterface $dispatcher, BrokerInterface $broker, Bag $gates)
     {
         $this->gates      = $gates;
         $this->broker     = $broker;
@@ -36,14 +37,16 @@ class Publisher
 
     public function publish(Message $message, $gate)
     {
-        if (!isset($this->gates[$gate])) {
-            throw new UnexpectedValueException(sprintf('Unknown gate "%s" selected. Available gates are : [%s]', $gate, implode(array_keys($this->gates), ', ')));
+        if (!$this->gates->has($gate)) {
+            throw new UnexpectedValueException(sprintf('Unknown gate "%s" selected. Available gates are : [%s]', $gate, implode(array_keys($this->gates->all()), ', ')));
         }
 
-        $provider = $this->broker->getProducer($gate, $this->gates[$gate]['connection']);
-        $provider->publish($message, $this->gates[$gate]['routing_key']);
+        $gate = $this->gates->get($gate);
 
-        $this->dispatcher->dispatch(MessagePublishedEvent::NAME, new MessagePublishedEvent($message, new Datetime, $gate, $this->gates[$gate]));
+        $provider = $this->broker->getProducer($gate->getName(), $gate->getConnection());
+        $provider->publish($message, $gate->getRoutingKey());
+
+        $this->dispatcher->dispatch(MessagePublishedEvent::NAME, new MessagePublishedEvent($message, new Datetime, $gate));
     }
 }
 

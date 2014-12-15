@@ -21,15 +21,15 @@ class MessagingListener implements EventSubscriberInterface
 
     public function onMessageSent(MessagePublishedEvent $event)
     {
-        $config = $event->getConfig();
-        $config['routing_key'] = null === $config['routing_key'] ? '' : sprintf(' : %s', $config['routing_key']);
+        $gate = $event->getGate();
+        $routingKey  = null === $gate->getRoutingKey() ? '' : sprintf(' : %s', $gate->getRoutingKey());
 
-        $this->collector->addMessage(['gate'         => $event->getGate(),
-                                      'extras'       => $config['extras'],
+        $this->collector->addMessage(['gate'         => $gate->getName(),
+                                      'extras'       => $gate->getExtras(),
                                       'message'      => $event->getMessage(),
-                                      'connection'   => $config['connection'],
+                                      'connection'   => $gate->getConnection(),
                                       'published_at' => $event->getPublishedAt(),
-                                      'exchange'     => $config['exchange'] . $config['routing_key']]);
+                                      'exchange'     => $gate->getExchange() . $routingKey]);
 
     }
 }

@@ -25,7 +25,7 @@
         <service id="wisembly.amqp.publisher" class="Wisembly\AmqpBundle\Publisher">
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="wisembly.amqp.broker" /> <!-- declared in a compiler pass //-->
-            <argument>%wisembly.amqp.gates%</argument>
+            <argument type="service" id="wisembly.amqp.gates" />
         </service>
 
         <service id="wisembly.amqp.gates" class="Wisembly\CoreBundle\Domain\Bag" />

@@ -7,6 +7,8 @@ use Symfony\Component\EventDispatcher\Event;
 
 use Swarrot\Broker\Message;
 
+use Wisembly\AmqpBundle\Gate;
+
 /**
  * Represents a message sent to the broker
  *
@@ -22,16 +24,12 @@ class MessagePublishedEvent extends Event
     /** @var Datetime */
     private $publishedAt;
 
-    /** @var string */
+    /** @var Gate */
     private $gate;
 
-    /** @var string[] */
-    private $config;
-
-    public function __construct(Message $message, Datetime $publishedAt, $gate, array $config)
+    public function __construct(Message $message, Datetime $publishedAt, Gate $gate)
     {
         $this->gate        = $gate;
-        $this->config      = $config;
         $this->message     = $message;
         $this->publishedAt = $publishedAt;
     }
@@ -42,16 +40,10 @@ class MessagePublishedEvent extends Event
         return $this->message;
     }
 
-    /** @return string */
+    /** @return Gate */
     public function getGate()
     {
         return $this->gate;
-    }
-
-    /** @return string[] */
-    public function getConfig()
-    {
-        return $this->config;
     }
 
     public function getPublishedAt()
