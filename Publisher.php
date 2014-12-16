@@ -43,7 +43,7 @@ class Publisher
 
         $gate = $this->gates->get($gate);
 
-        $provider = $this->broker->getProducer($gate->getName(), $gate->getConnection());
+        $provider = $this->broker->getProducer($gate->getName(), $gate->getConnection()->getName());
         $provider->publish($message, $gate->getRoutingKey());
 
         $this->dispatcher->dispatch(MessagePublishedEvent::NAME, new MessagePublishedEvent($message, new Datetime, $gate));

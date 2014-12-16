@@ -17,8 +17,8 @@ class Gate
     /** @var string Queue to use */
     private $queue;
 
-    /** @var string Connection's name to use */
-    private $connection = 'default';
+    /** @var Connection Connection to use */
+    private $connection;
 
     /** @var string Routing key */
     private $key = null;
@@ -76,13 +76,13 @@ class Gate
     }
 
     /**
-     * @param string $name Connection's name to use
+     * @param Connection $connection Connection to use
      *
      * @return static
      */
-    public function setConnection($name)
+    public function setConnection(Connection $connection)
     {
-        $this->connection = $name;
+        $this->connection = $connection;
 
         return $this;
     }
