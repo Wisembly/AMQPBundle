@@ -13,7 +13,9 @@ use PhpAmqpLib\Channel\AMQPChannel,
 use Swarrot\Broker\MessageProvider\PhpAmqpLibMessageProvider,
     Swarrot\Broker\MessagePublisher\PhpAmqpLibMessagePublisher;
 
-use Wisembly\AmqpBundle\BrokerInterface,
+use Wisembly\AmqpBundle\Gate,
+    Wisembly\AmqpBundle\Connection,
+    Wisembly\AmqpBundle\BrokerInterface,
     Wisembly\AmqpBundle\Exception\MessagingException;
 
 class OldsoundBroker implements BrokerInterface
@@ -30,71 +32,35 @@ class OldsoundBroker implements BrokerInterface
     /** @var PhpAmqpLibMessagePublisher[][] */
     private $producers = [];
 
-    /** @var string[][] */
-    private $gates = [];
-
-    public function __construct(array $gates)
-    {
-        $this->gates = $gates;
-    }
-
     /** {@inheritDoc} */
-    public function addConnection($name, array $connection)
+    public function getProvider(Gate $gate)
     {
-        $connection = new AMQPLazyConnection($connection['host'],
-                                             $connection['port'],
-                                             $connection['login'],
-                                             $connection['password'],
-                                             $connection['vhost']);
-
-        $connection->set_close_on_destruct(true);
-
-        $this->connections[$name] = $connection;
-
-        return $this;
-    }
-
-    /** {@inheritDoc} */
-    public function getProvider($name, $connection = null)
-    {
-        if (!isset($this->gates[$name])) {
-            throw new InvalidArgumentException(sprintf('Gate "%s" not recognized. Have you forgotten to declare it ?', $name));
-        }
-
-        if (null === $connection) {
-            reset($this->connections);
-            $connection = key($this->connections);
-        }
+        $name = $gate->getName();
+        $connection = $gate->getConnection()->getName();
 
         if (!isset($this->providers[$connection])) {
             $this->providers[$connection] = [];
         }
 
         if (!isset($this->providers[$connection][$name])) {
-            $this->providers[$connection][$name] = new PhpAmqpLibMessageProvider($this->getChannel($connection), $this->gates[$name]['queue']);
+            $this->providers[$connection][$name] = new PhpAmqpLibMessageProvider($this->getChannel($gate->getConnection()), $gate->getQueue());
         }
 
         return $this->providers[$connection][$name];
     }
 
     /** {@inheritDoc} */
-    public function getProducer($name, $connection = null)
+    public function getProducer(Gate $gate)
     {
-        if (!isset($this->gates[$name])) {
-            throw new InvalidArgumentException(sprintf('Gate "%s" not recognized. Have you forgotten to declare it ?', $this->gates[$name]['exchange']));
-        }
-
-        if (null === $connection) {
-            reset($this->connections);
-            $connection = key($this->connections);
-        }
+        $name = $gate->getName();
+        $connection = $gate->getConnection()->getName();
 
         if (!isset($this->producers[$connection])) {
             $this->producers[$connection] = [];
         }
 
         if (!isset($this->producers[$connection][$name])) {
-            $this->producers[$connection][$name] = new PhpAmqpLibMessagePublisher($this->getChannel($connection), $this->gates[$name]['exchange']);
+            $this->producers[$connection][$name] = new PhpAmqpLibMessagePublisher($this->getChannel($gate->getConnection()), $gate->getExchange());
         }
 
         return $this->producers[$connection][$name];
@@ -103,23 +69,43 @@ class OldsoundBroker implements BrokerInterface
     /**
      * Get a channel with the connection $connection
      *
-     * @param string $connnection Connection's name
      * @return AMQPChannel
      */
-    private function getChannel($connection)
+    private function getChannel(Connection $connection)
     {
-        if (isset($this->channels[$connection])) {
-            return $this->channels[$connection];
+        $name = $connection->getName();
+
+        if (isset($this->channels[$name])) {
+            return $this->channels[$name];
         }
 
-        if (!isset($this->connections[$connection])) {
-            throw new InvalidArgumentException(sprintf('Unknown connection "%s". Available : [%s]', $connection, implode(', ', array_keys($this->connections))));
-        }
+        $connection = $this->getConnection($connection);
 
         try {
-            return $this->channels[$connection] = $this->connections[$connection]->channel();
+            return $this->channels[$name] = $connection->channel();
         } catch (AMQPProtocolException $e) {
             throw new MessagingException($e);
         }
     }
+
+    /** @return AMQPLazyConnection */
+    private function getConnection(Connection $connection)
+    {
+        $name = $connection->getName();
+
+        if (isset($this->connections[$name])) {
+            return $this->connections[$name];
+        }
+
+        $connection = new AMQPLazyConnection($connection->getHost(),
+                                             $connection->getPort(),
+                                             $connection->getLogin(),
+                                             $connection->getPassword(),
+                                             $connection->getVhost());
+
+        $connection->set_close_on_destruct(true);
+
+        return $this->connections[$name] = $connection;
+    }
 }
+

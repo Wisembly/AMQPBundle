@@ -31,22 +31,22 @@ class ConsumerCommand extends ContainerAwareCommand
 
         $this->addArgument('gate', InputArgument::REQUIRED, 'AMQP Gate to use');
 
-        $this->addOption('connection', null, InputOption::VALUE_REQUIRED, 'AMQP Connection to use')
-             ->addOption('poll-interval', null, InputOption::VALUE_REQUIRED, 'poll interval, in micro-seconds', 50000);
+        $this->addOption('poll-interval', null, InputOption::VALUE_REQUIRED, 'poll interval, in micro-seconds', 50000);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $container  = $this->getContainer();
-        $gate       = $input->getArgument('gate');
-        $connection = $input->getOption('connection') ?: $container->getParameter('wisembly.amqp.default_connection');
+        $container = $this->getContainer();
+        $gate = $input->getArgument('gate');
 
-        $broker      = $container->get('wisembly.amqp.broker');
-        $provider    = $broker->getProvider($gate, $connection);
-        $producer    = $broker->getProducer($gate, $connection);
+        $broker = $container->get('wisembly.amqp.broker');
+        $logger = $container->get('monolog.logger.consumer');
+        $gate = $container->get('wisembly.amqp.gates')->get($gate);
         $environment = $container->get('kernel')->getEnvironment();
 
-        $logger    = $container->get('monolog.logger.consumer');
+        $provider = $broker->getProvider($gate);
+        $producer = $broker->getProducer($gate);
+
         $processor = new CommandProcessor($logger, new ProcessBuilder, $provider, $producer, $container->getParameter('wisembly.core.path.console'), $environment, $input->getOption('verbose'));
 
         // Wrap processor in an Swarrot ExceptionCatcherProcessor to avoid breaking processor if an error occurs

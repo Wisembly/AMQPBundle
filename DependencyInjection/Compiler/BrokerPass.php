@@ -27,9 +27,7 @@ class BrokerPass implements CompilerPassInterface
             $brokers[isset($tag[0]['alias']) ? $tag[0]['alias'] : $id] = $id;
         }
 
-        $gates       = $container->getParameter('wisembly.amqp.gates');
-        $broker      = $container->getParameter('wisembly.amqp.broker');
-        $connections = $container->getParameter('wisembly.amqp.connections');
+        $broker = $container->getParameter('wisembly.amqp.broker');
 
         if (!isset($brokers[$broker])) {
             throw new InvalidArgumentException(sprintf('Invalid broker "%s". Expected one of those : [%s]', $broker, implode(', ', array_keys($brokers))));
@@ -44,13 +42,7 @@ class BrokerPass implements CompilerPassInterface
             throw new InvalidArgumentException(sprintf('The provided broker "%s" is not valid.', $broker));
         }
 
-        foreach ($connections as $name => $connection) {
-            $definition->addMethodCall('addConnection', [$name, $connection]);
-        }
-
-        // add the gates parameter
-        $definition->addArgument($gates);
-
         $container->setAlias('wisembly.amqp.broker', $broker);
     }
 }
+
