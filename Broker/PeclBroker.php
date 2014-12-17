@@ -83,6 +83,30 @@ class PeclBroker implements BrokerInterface
         }
     }
 
+    /** {@inheritDoc} */
+    public function createTemporaryQueue(Gate $gate)
+    {
+        $id = sha1(uniqid(mt_rand(), true));
+        $key = $gate->getRoutingKey();
+        $extras = $gate->getExtras();
+
+        // creating temporary gate
+        $gate = new Gate($gate->getConnection(), $id, $gate->getExchange(), $id);
+        $gate->setRoutingKey($key)
+             ->setExtras($extras);
+
+        // creating temporary queue
+        $queue = new AMQPQueue($this->getChannel($gate->getConnection()));
+        $queue->setName($id);
+        $queue->setFlags(\AMQP_EXCLUSIVE);
+        $queue->declareQueue();
+        $queue->bind($gate->getExchange(), $queue->getName());
+
+        $this->providers[$gate->getConnection()->getName()][$gate->getName()] = new PeclPackageMessageProvider($queue);
+
+        return $gate;
+    }
+
     /**
      * Get a channel with the connection $connection
      *
@@ -99,10 +123,10 @@ class PeclBroker implements BrokerInterface
 
         try {
             $connection = new AMQPConnection(['host' => $connection->getHost(),
-                                             'port' => $connection->getPort(),
-                                             'login' => $connection->getLogin(),
-                                             'password' => $connection->getPassword(),
-                                             'vhost' => $connection->getVhost()]);
+                                              'port' => $connection->getPort(),
+                                              'login' => $connection->getLogin(),
+                                              'password' => $connection->getPassword(),
+                                              'vhost' => $connection->getVhost()]);
 
             $connection->connect();
 

@@ -31,4 +31,13 @@ interface BrokerInterface
      * @return MessagePublisherInterface
      */
     public function getProducer(Gate $gate);
+
+    /**
+     * Create a temporary queue
+     *
+     * @param Gate original from which the data will be copied
+     *
+     * @return Gate the new associated gate
+     */
+    public function createTemporaryQueue(Gate $origin);
 }

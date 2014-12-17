@@ -66,6 +66,33 @@ class OldsoundBroker implements BrokerInterface
         return $this->producers[$connection][$name];
     }
 
+    /** {@inheritDoc} */
+    public function createTemporaryQueue(Gate $gate)
+    {
+        $key = $gate->getRoutingKey();
+        $extras = $gate->getExtras();
+        $name = sha1(uniqid(mt_rand(), true));
+        $connection = $gate->getConnection()->getName();
+
+        // creating temporary gate
+        $gate = new Gate($gate->getConnection(), $name, $gate->getExchange(), $name);
+        $gate->setRoutingKey($key)
+             ->setExtras($extras);
+
+        // creating temporary queuei
+        if (!isset($this->providers[$connection])) {
+            $this->providers[$connection] = [];
+        }
+
+        $channel = $this->getChannel($gate->getConnection());
+        $channel->queue_declare($name, false, false, true, false);
+        $channel->queue_bind($gate->getQueue(), $gate->getExchange(), $gate->getQueue());
+
+        $this->providers[$connection][$name] = new PhpAmqpLibMessageProvider($this->getChannel($gate->getConnection()), $gate->getQueue());
+
+        return $gate;
+    }
+
     /**
      * Get a channel with the connection $connection
      *
