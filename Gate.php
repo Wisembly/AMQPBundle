@@ -26,11 +26,12 @@ class Gate
     /** @var mixed[] Extras associated to this gate */
     private $extras = [];
 
-    public function __construct($name, $exchange, $queue)
+    public function __construct(Connection $connection, $name, $exchange, $queue)
     {
         $this->name = $name;
         $this->queue = $queue;
         $this->exchange = $exchange;
+        $this->connection = $connection;
     }
 
     /** @return string Gate's name */
@@ -73,18 +74,6 @@ class Gate
     public function getConnection()
     {
         return $this->connection;
-    }
-
-    /**
-     * @param Connection $connection Connection to use
-     *
-     * @return static
-     */
-    public function setConnection(Connection $connection)
-    {
-        $this->connection = $connection;
-
-        return $this;
     }
 
     /** @return mixed[] */
