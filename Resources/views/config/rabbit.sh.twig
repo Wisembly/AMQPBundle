@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+ROOT_PATH="$( cd "$( dirname "$0" )" && pwd )"
+
+echo "# Enable rabbitmq_management plugin"
+rabbitmq-plugins enable rabbitmq_management
+
+if ! type "rabbitmqadmin" > /dev/null
+then
+    echo "# Installing rabbitmqadmin"
+    curl -X GET http://127.0.0.1:15672/cli/rabbitmqadmin > /usr/local/bin/rabbitmqadmin
+    chmod +x /usr/local/bin/rabbitmqadmin
+fi
+
+echo "# Importing mapping"
+rabbitmqadmin import "$ROOT_PATH/config-rabbit.json"
