@@ -47,7 +47,6 @@ class GatePass implements CompilerPassInterface
         $definition->addArgument($gates);
 
         $container->getParameterBag()->remove('wisembly.amqp.gates');
-        $container->getParameterBag()->remove('wisembly.amqp.connections');
     }
 }
 
