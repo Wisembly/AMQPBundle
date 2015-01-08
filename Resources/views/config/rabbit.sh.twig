@@ -1,8 +1,6 @@
 #!/bin/sh
 set -e
 
-ROOT_PATH="$( cd "$( dirname "$0" )" && pwd )"
-
 echo "# Enable rabbitmq_management plugin"
 rabbitmq-plugins enable rabbitmq_management
 
@@ -14,4 +12,4 @@ then
 fi
 
 echo "# Importing mapping"
-rabbitmqadmin import "$ROOT_PATH/config-rabbit.json"
+rabbitmqadmin import "{{ path }}/bin/rabbit.json" -u {{ login }} -p {{ password }} -H {{ host }}
