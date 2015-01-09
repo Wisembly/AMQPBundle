@@ -23,24 +23,25 @@ class ConfigFilesHandlerCommand extends ContainerAwareCommand
 
     const UPDATE_ALL = 0b11; // php 5.6 for UPDATE_SH | UPDATE_JSON :(
 
+    const TARGET_DIRECTORY = '%s/bin/rabbit';
+
     protected function configure()
     {
         $this->setName('wisembly:amqp:config-handler')
              ->setDescription('Build the amqp config files with your configuration (connection, main vhost, ...)')
              ->setHelp(<<<HELP
 Create the two files needed to build your amqp configuration. Once it is done,
-you can run `\$ sh bin/rabbit.sh` to have everything configured, and letting you
-launch the appropriate consumers.
+you can run `\$ sudo sh bin/rabbit.sh` to have everything configured, and
+leaving you to launch the appropriate consumers.
 
 You can specify some flags :
-    - json to update / create the json file
-    - sh to update / create the sh file
+    - json to update / create the json files
+    - sh to update / create the sh files
     - all to update everything (which is the default)
 HELP
                 );
 
-        $this->addOption('connection', 'c', InputOption::VALUE_REQUIRED, 'Which connection should we use ?', null)
-             ->addOption('filter', 'f', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What should we update ?', ['all']);
+        $this->addOption('filter', 'f', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What should we update ?', ['all']);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -62,24 +63,33 @@ HELP
             }
         }
 
+
+        $filesystem = $container->get('filesystem');
         $templating = $container->get('templating');
         $connections = $container->getParameter('wisembly.amqp.connections');
-        $connection = $input->getOption('connection') ?: $container->getParameter('wisembly.amqp.default_connection');
 
-        if (!isset($connections[$connection])) {
-            throw new \InvalidArgumentException(sprintf('Wrong connection "%s" given. Available ones : ["%s"]', $connection, implode('", "', array_keys($connections))));
+        if (!$filesystem->exists(sprintf(self::TARGET_DIRECTORY, $rootPath))) {
+            $output->writeln('Creating new rabbit directory');
+            $filesystem->mkdir(sprintf(self::TARGET_DIRECTORY, $rootPath));
         }
 
-        $connection = $connections[$connection];
+        $output->writeln('Dumping config into the bin directory...');
 
-        if ($flag & self::UPDATE_SH) {
-            $file = $templating->render('WisemblyAmqpBundle:config:rabbit.sh.twig', $connection + ['path' => $rootPath]);
-            file_put_contents(sprintf('%s/bin/rabbit.sh', $rootPath), $file);
-        }
+        foreach ($connections as $name => $connection) {
+            if ($flag & self::UPDATE_SH) {
+                $output->writeln(sprintf('Dumping the sh file for the <info>%s</info> connection', $name));
 
-        if ($flag & self::UPDATE_JSON) {
-            $file = $templating->render('WisemblyAmqpBundle:config:rabbit.json.twig', $connection);
-            file_put_contents(sprintf('%s/bin/rabbit.json', $rootPath), $file);
+                $file = $templating->render('WisemblyAmqpBundle:config:rabbit.sh.twig', $connection + ['path' => $rootPath, 'name' => $name]);
+                $filesystem->dumpFile(sprintf(self::TARGET_DIRECTORY . '/%s.sh', $rootPath, $name), $file, 0775);
+                $filesystem->chmod(sprintf(self::TARGET_DIRECTORY . '/%s.sh', $rootPath, $name), 0775);
+            }
+
+            if ($flag & self::UPDATE_JSON) {
+                $output->writeln(sprintf('Dumping the json configuration file for the <info>%s</info> connection', $name));
+
+                $file = $templating->render(sprintf('WisemblyAmqpBundle:config:%s.json.twig', $name), $connection);
+                $filesystem->dumpFile(sprintf(self::TARGET_DIRECTORY . '/%s.json', $rootPath, $name), $file);
+            }
         }
     }
 }

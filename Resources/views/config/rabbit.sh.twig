@@ -1,15 +1,5 @@
 #!/bin/sh
 set -e
 
-echo "# Enable rabbitmq_management plugin"
-rabbitmq-plugins enable rabbitmq_management
-
-if ! type "rabbitmqadmin" > /dev/null
-then
-    echo "# Installing rabbitmqadmin"
-    curl -X GET http://127.0.0.1:15672/cli/rabbitmqadmin > /usr/local/bin/rabbitmqadmin
-    chmod +x /usr/local/bin/rabbitmqadmin
-fi
-
-echo "# Importing mapping"
-rabbitmqadmin import "{{ path }}/bin/rabbit.json" -u {{ login }} -p {{ password }} -H {{ host }}
+echo "# Importing mapping for {{ name }}"
+rabbitmqadmin import "{{ path }}/bin/rabbit/{{ name }}.json" -u {{ login }} -p {{ password }} -H {{ host }}
