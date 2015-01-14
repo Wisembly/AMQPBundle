@@ -11,11 +11,11 @@ use Symfony\Component\Console\Input\InputOption,
     Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 
 use Swarrot\Consumer,
+
+    Swarrot\Processor\RPC\RpcServerProcessor,
     Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor;
 
-use Wisembly\AmqpBundle\Processor\CommandProcessor,
-    Wisembly\AmqpBundle\Processor\RpcServerProcessor;
-
+use Wisembly\AmqpBundle\Processor\CommandProcessor;
 
 /**
  * RabbitMQ Consumer
