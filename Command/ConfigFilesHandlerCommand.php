@@ -1,6 +1,7 @@
 <?php
-
 namespace Wisembly\AmqpBundle\Command;
+
+use InvalidArgumentException;
 
 use Symfony\Component\Console\Input\InputOption,
     Symfony\Component\Console\Input\InputArgument,
@@ -41,7 +42,9 @@ You can specify some flags :
 HELP
                 );
 
-        $this->addOption('filter', 'f', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What should we update ?', ['all']);
+        $this->addOption('filter', 'f', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What should we update ?', ['all'])
+             ->addOption('user', 'u', InputOption::VALUE_REQUIRED, 'Which amqp user should be used ?')
+             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Which amqp password should be used ?');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -50,6 +53,17 @@ HELP
         $container = $this->getContainer();
         $filters = $input->getOption('filter');
         $rootPath = dirname($this->getApplication()->getKernel()->getRootDir());
+
+        $user = $password = null;
+
+        if ($input->getOption('user')) {
+            if (!$input->getOption('password')) {
+                throw new InvalidArgumentException('A password must be provided with the user option');
+            }
+
+            $user = $input->getOption('user');
+            $password = $input->getOption('password');
+        }
 
         if (!in_array('all', $filters)) {
             $flag = 0;
@@ -79,12 +93,21 @@ HELP
             if ($flag & self::UPDATE_SH) {
                 $output->writeln(sprintf('Dumping the sh file for the <info>%s</info> connection', $name));
 
+                if (null !== $user && null !== $password) {
+                    $connection['login'] = $user;
+                    $connection['password'] = $password;
+                }
+
                 $file = $templating->render('WisemblyAmqpBundle:config:rabbit.sh.twig', $connection + ['path' => $rootPath, 'name' => $name]);
                 $filesystem->dumpFile(sprintf(self::TARGET_DIRECTORY . '/%s.sh', $rootPath, $name), $file, 0775);
                 $filesystem->chmod(sprintf(self::TARGET_DIRECTORY . '/%s.sh', $rootPath, $name), 0775);
             }
 
             if ($flag & self::UPDATE_JSON) {
+                if (null !== $user) {
+                    $connection['login'] = $user;
+                }
+
                 $output->writeln(sprintf('Dumping the json configuration file for the <info>%s</info> connection', $name));
 
                 $file = $templating->render(sprintf('WisemblyAmqpBundle:config:%s.json.twig', $name), $connection);
