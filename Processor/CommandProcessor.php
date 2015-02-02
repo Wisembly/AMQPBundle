@@ -34,10 +34,11 @@ class CommandProcessor implements ProcessorInterface
     /** @var string path to the sf console */
     private $commandPath;
 
-    public function __construct(LoggerInterface $logger, ProcessBuilder $builder, MessageProviderInterface $provider, MessagePublisherInterface $publisher, $commandPath, $environment, $verbosity = false)
+    public function __construct(LoggerInterface $logger, ProcessBuilder $builder, MessageProviderInterface $provider, MessagePublisherInterface $publisher, $commandPath, $phpPath, $environment, $verbosity = false)
     {
         $this->logger      = $logger;
         $this->builder     = $builder;
+        $this->phpPath     = $phpPath;
         $this->provider    = $provider;
         $this->publisher   = $publisher;
         $this->commandPath = $commandPath;
@@ -73,7 +74,7 @@ class CommandProcessor implements ProcessorInterface
 
         $this->logger->info('Dispatching command', $body);
 
-        $this->builder->setPrefix([$this->commandPath, $body['command']]);
+        $this->builder->setPrefix([$this->phpPath, $this->commandPath, $body['command']]);
         $this->builder->setArguments($body['arguments']);
 
         $process = $this->builder->getProcess();

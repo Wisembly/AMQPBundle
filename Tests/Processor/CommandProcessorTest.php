@@ -19,6 +19,7 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                                           $this->getMockWithoutConstructor('Swarrot\\Broker\\MessageProvider\\MessageProviderInterface'),
                                           $this->getMockWithoutConstructor('Swarrot\\Broker\\MessagePublisher\\MessagePublisherInterface'),
                                           'path/to/command',
+                                          'path/to/php',
                                           'dev');
 
         $this->assertInstanceOf('Swarrot\\Processor\\ProcessorInterface', $processor);
@@ -57,6 +58,7 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                                           $provider,
                                           $this->getMockWithoutConstructor('Swarrot\\Broker\\MessagePublisher\\MessagePublisherInterface'),
                                           'path/to/command',
+                                          'path/to/php',
                                           'dev',
                                           true);
 
@@ -96,6 +98,7 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                                           $provider,
                                           $this->getMockWithoutConstructor('Swarrot\\Broker\\MessagePublisher\\MessagePublisherInterface'),
                                           'path/to/command',
+                                          'path/to/php',
                                           'prod');
 
         $processor->process($message, []);
@@ -140,6 +143,7 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                                           $provider,
                                           $publisher,
                                           'path/to/command',
+                                          'path/to/php',
                                           'dev');
 
         $processor->process($message, []);
@@ -170,7 +174,7 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
 
         $builder->expects(static::exactly(2))
                 ->method('setPrefix')
-                ->with(static::logicalOr(['path/to/command', 'foo'], []));
+                ->with(static::logicalOr(['path/to/php', 'path/to/command', 'foo'], []));
 
         $builder->expects(static::exactly(2))
                 ->method('setArguments')
