@@ -34,6 +34,7 @@ class ConsumerCommand extends ContainerAwareCommand
         $this->addArgument('gate', InputArgument::REQUIRED, 'AMQP Gate to use');
 
         $this->addOption('rpc', null, InputOption::VALUE_NONE, 'Use a RPC mechanism ?')
+             ->addOption('disable-verbosity-propagation', null, InputOption::VALUE_NONE, 'Do not spread the verbosity to the child command')
              ->addOption('poll-interval', null, InputOption::VALUE_REQUIRED, 'poll interval, in micro-seconds', 50000);
     }
 
@@ -50,7 +51,14 @@ class ConsumerCommand extends ContainerAwareCommand
         $provider = $broker->getProvider($gate);
         $producer = $broker->getProducer($gate);
 
-        $processor = new CommandProcessor($logger, new ProcessBuilder, $provider, $producer, $container->getParameter('wisembly.core.path.console'), $container->getParameter('wisembly.core.path.php'), $environment, $output->getVerbosity());
+        $processor = new CommandProcessor($logger, new ProcessBuilder,
+                                          $provider, $producer,
+                                          $container->getParameter('wisembly.core.path.console'), $container->getParameter('wisembly.core.path.php'),
+                                          $environment,
+                                          true === $input->getOption('disable-verbosity-propagation')
+                                            ? OutputInterface::VERBOSITY_QUIET
+                                            : $output->getVerbosity()
+        );
 
         // if we want a rpc mechanism, let's wrap a rpc server processor
         if (true === $input->getOption('rpc')) {
