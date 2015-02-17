@@ -3,7 +3,8 @@ namespace Wisembly\AmqpBundle\Processor;
 
 use Psr\Log\LoggerInterface;
 
-use Symfony\Component\Process\ProcessBuilder,
+use Symfony\Component\Process\Process,
+    Symfony\Component\Process\ProcessBuilder,
     Symfony\Component\Console\Output\OutputInterface;
 
 use Swarrot\Broker\Message,
@@ -96,7 +97,17 @@ class CommandProcessor implements ProcessorInterface
         $this->builder->setArguments($body['arguments']);
 
         $process = $this->builder->getProcess();
-        $process->run();
+        $process->run(function ($type, $data) {
+            switch ($type) {
+                case Process::OUT:
+                    $this->logger->info($data);
+                    break;
+
+                case Process::ERR:
+                    $this->logger->error($data);
+                    break;
+            }
+        });
 
         // reset the builder
         $this->builder->setArguments([]);
@@ -109,7 +120,7 @@ class CommandProcessor implements ProcessorInterface
         }
 
         $code = $process->getExitCode();
-        $this->logger->warning('The command failed ; aborting', ['body' => $body, 'code' => $code, 'error' => $process->getErrorOutput()]);
+        $this->logger->error('The command failed ; aborting', ['body' => $body, 'code' => $code]);
 
         $this->provider->nack($message, false);
 
