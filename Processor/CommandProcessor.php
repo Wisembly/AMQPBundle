@@ -3,7 +3,8 @@ namespace Wisembly\AmqpBundle\Processor;
 
 use Psr\Log\LoggerInterface;
 
-use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Process\ProcessBuilder,
+    Symfony\Component\Console\Output\OutputInterface;
 
 use Swarrot\Broker\Message,
     Swarrot\Broker\MessageProvider\MessageProviderInterface,
@@ -34,7 +35,7 @@ class CommandProcessor implements ProcessorInterface
     /** @var string path to the sf console */
     private $commandPath;
 
-    public function __construct(LoggerInterface $logger, ProcessBuilder $builder, MessageProviderInterface $provider, MessagePublisherInterface $publisher, $commandPath, $phpPath, $environment, $verbosity = false)
+    public function __construct(LoggerInterface $logger, ProcessBuilder $builder, MessageProviderInterface $provider, MessagePublisherInterface $publisher, $commandPath, $phpPath, $environment, $verbosity = OutputInterface::VERBOSITY_NORMAL)
     {
         $this->logger      = $logger;
         $this->builder     = $builder;
@@ -66,8 +67,25 @@ class CommandProcessor implements ProcessorInterface
         $body['arguments'][] = $this->environment;
 
         // add verbosity
-        if ($this->verbosity) {
-            $body['arguments'][] = '--verbose';
+        switch ($this->verbosity) {
+            case OutputInterface::VERBOSITY_DEBUG:
+                $body['arguments'][] = '-vvv';
+                break;
+
+            case OutputInterface::VERBOSITY_VERY_VERBOSE:
+                $body['arguments'][] = '-vv';
+                break;
+
+            case OutputInterface::VERBOSITY_VERBOSE:
+                $body['arguments'][] = '--verbose';
+                break;
+
+            case OutputInterface::VERBOSITY_QUIET:
+                $body['arguments'][] = '--quiet';
+                break;
+
+            case OutputInterface::VERBOSITY_NORMAL:
+            break;
         }
 
         ++$properties['wisembly_attempts'];

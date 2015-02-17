@@ -50,7 +50,7 @@ class ConsumerCommand extends ContainerAwareCommand
         $provider = $broker->getProvider($gate);
         $producer = $broker->getProducer($gate);
 
-        $processor = new CommandProcessor($logger, new ProcessBuilder, $provider, $producer, $container->getParameter('wisembly.core.path.console'), $container->getParameter('wisembly.core.path.php'), $environment, $input->getOption('verbose'));
+        $processor = new CommandProcessor($logger, new ProcessBuilder, $provider, $producer, $container->getParameter('wisembly.core.path.console'), $container->getParameter('wisembly.core.path.php'), $environment, $output->getVerbosity());
 
         // if we want a rpc mechanism, let's wrap a rpc server processor
         if (true === $input->getOption('rpc')) {

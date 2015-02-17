@@ -3,6 +3,8 @@ namespace Wisembly\AmqpBundle\Tests\Processor;
 
 use PHPUnit_Framework_TestCase;
 
+use Symfony\Component\Console\Output\OutputInterface;
+
 use Swarrot\Broker\Message;
 
 use Wisembly\CoreBundle\Traits\Tests\MockWithoutConstructor,
@@ -29,7 +31,7 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
     public function testAckIfSuccessful()
     {
         $body         = ['command' => 'foo', 'arguments' => []];
-        $modifiedBody = array_merge($body, ['arguments' => ['--env', 'dev', '--verbose']]);
+        $modifiedBody = array_merge($body, ['arguments' => ['--env', 'dev']]);
 
         $message = new Message(json_encode($body), ['wisembly_attempts' => CommandProcessor::MAX_ATTEMPTS]);
 
@@ -60,7 +62,7 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                                           'path/to/command',
                                           'path/to/php',
                                           'dev',
-                                          true);
+                                          OutputInterface::VERBOSITY_NORMAL);
 
         $processor->process($message, []);
     }
