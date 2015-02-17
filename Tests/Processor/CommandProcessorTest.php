@@ -43,7 +43,7 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                ->with(static::logicalOr('Dispatching command', 'The process was successful'), static::logicalOr($modifiedBody, []));
 
         $logger->expects(static::never())
-               ->method('warning');
+               ->method('error');
 
         $logger->expects(static::never())
                ->method('notice');
@@ -61,8 +61,8 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                                           $this->getMockWithoutConstructor('Swarrot\\Broker\\MessagePublisher\\MessagePublisherInterface'),
                                           'path/to/command',
                                           'path/to/php',
-                                          'dev',
-                                          OutputInterface::VERBOSITY_NORMAL);
+                                          'dev'
+        );
 
         $processor->process($message, []);
     }
@@ -82,8 +82,8 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                ->with('Dispatching command', $modifiedBody);
 
         $logger->expects(static::once())
-               ->method('warning')
-               ->with('The command failed ; aborting', ['body' => $modifiedBody, 'code' => CommandProcessor::REQUEUE, 'error' => 'error !']);
+               ->method('error')
+               ->with('The command failed ; aborting', ['body' => $modifiedBody, 'code' => CommandProcessor::REQUEUE]);
 
         $logger->expects(static::never())
                ->method('notice');
@@ -122,8 +122,8 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                ->with('Dispatching command', $modifiedBody);
 
         $logger->expects(static::once())
-               ->method('warning')
-               ->with('The command failed ; aborting', ['body' => $modifiedBody, 'code' => CommandProcessor::REQUEUE, 'error' => 'error !']);
+               ->method('error')
+               ->with('The command failed ; aborting', ['body' => $modifiedBody, 'code' => CommandProcessor::REQUEUE]);
 
         $logger->expects(static::once())
                ->method('notice')
@@ -157,7 +157,8 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
         $builder  = $this->getMockWithoutConstructor('Symfony\\Component\\Process\\ProcessBuilder', 'setPrefix', 'setArguments', 'getProcess');
 
         $process->expects(static::once())
-                ->method('run');
+                ->method('run')
+                ->with(static::isType('callable'));
 
         $process->expects(static::once())
                 ->method('isSuccessful')
@@ -168,10 +169,6 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
 
         if (false === $success) {
             $mock->will(static::returnValue(CommandProcessor::REQUEUE));
-
-            $process->expects(static::once())
-                    ->method('getErrorOutput')
-                    ->will(static::returnValue('error !'));
         }
 
         $builder->expects(static::exactly(2))
