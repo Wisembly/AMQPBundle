@@ -53,7 +53,7 @@ class ConsumerCommand extends ContainerAwareCommand
 
         $processor = new CommandProcessor($logger, new ProcessBuilder,
                                           $provider, $producer,
-                                          $container->getParameter('wisembly.core.path.console'), $container->getParameter('wisembly.core.path.php'),
+                                          $container->getParameter('wisembly.core.path.console'), $container->getParameter('php_path'),
                                           $environment,
                                           true === $input->getOption('disable-verbosity-propagation')
                                             ? OutputInterface::VERBOSITY_QUIET
