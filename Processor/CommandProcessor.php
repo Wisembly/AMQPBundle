@@ -93,6 +93,13 @@ class CommandProcessor implements ProcessorInterface
 
         $this->logger->info('Dispatching command', $body);
 
+        // if no proper command given, log it and nack
+        if (!isset($body['command'])) {
+            $this->logger->critical('No proper command found in message', ['body' => $body]);
+            $this->provider->nack($message, false);
+            return;
+        }
+
         $this->builder->setPrefix([$this->phpPath, $this->commandPath, $body['command']]);
         $this->builder->setArguments($body['arguments']);
 
