@@ -3,20 +3,20 @@ namespace Wisembly\AmqpBundle\Broker;
 
 use InvalidArgumentException;
 
-use PhpAmqpLib\Channel\AMQPChannel,
-    PhpAmqpLib\Connection\AMQPLazyConnection,
+use PhpAmqpLib\Channel\AMQPChannel;
+use PhpAmqpLib\Connection\AMQPLazyConnection;
 
-    PhpAmqpLib\Exception\AMQPProtocolException,
-    PhpAmqpLib\Exception\AMQPProtocolChannelException,
-    PhpAmqpLib\Exception\AMQPProtocolConnectionException;
+use PhpAmqpLib\Exception\AMQPProtocolException;
+use PhpAmqpLib\Exception\AMQPProtocolChannelException;
+use PhpAmqpLib\Exception\AMQPProtocolConnectionException;
 
-use Swarrot\Broker\MessageProvider\PhpAmqpLibMessageProvider,
-    Swarrot\Broker\MessagePublisher\PhpAmqpLibMessagePublisher;
+use Swarrot\Broker\MessageProvider\PhpAmqpLibMessageProvider;
+use Swarrot\Broker\MessagePublisher\PhpAmqpLibMessagePublisher;
 
-use Wisembly\AmqpBundle\Gate,
-    Wisembly\AmqpBundle\Connection,
-    Wisembly\AmqpBundle\BrokerInterface,
-    Wisembly\AmqpBundle\Exception\MessagingException;
+use Wisembly\AmqpBundle\Gate;
+use Wisembly\AmqpBundle\Connection;
+use Wisembly\AmqpBundle\BrokerInterface;
+use Wisembly\AmqpBundle\Exception\MessagingException;
 
 class OldsoundBroker implements BrokerInterface
 {

@@ -7,8 +7,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use Swarrot\Broker\Message;
 
-use Wisembly\CoreBundle\Traits\Tests\MockWithoutConstructor,
-    Wisembly\AmqpBundle\Processor\CommandProcessor;
+use Wisembly\CoreBundle\Traits\Tests\MockWithoutConstructor;
+use Wisembly\AmqpBundle\Processor\CommandProcessor;
 
 class CommandProcessorTest extends PHPUnit_Framework_TestCase
 {

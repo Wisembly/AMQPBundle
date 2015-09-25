@@ -3,15 +3,15 @@ namespace Wisembly\AmqpBundle\Processor;
 
 use Psr\Log\LoggerInterface;
 
-use Symfony\Component\Process\Process,
-    Symfony\Component\Process\ProcessBuilder,
-    Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Console\Output\OutputInterface;
 
-use Swarrot\Broker\Message,
-    Swarrot\Broker\MessageProvider\MessageProviderInterface,
-    Swarrot\Broker\MessagePublisher\MessagePublisherInterface,
+use Swarrot\Broker\Message;
+use Swarrot\Broker\MessageProvider\MessageProviderInterface;
+use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
 
-    Swarrot\Processor\ProcessorInterface;
+use Swarrot\Processor\ProcessorInterface;
 
 class CommandProcessor implements ProcessorInterface
 {

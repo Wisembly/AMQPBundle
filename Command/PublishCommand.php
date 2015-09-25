@@ -4,10 +4,10 @@ namespace Wisembly\AmqpBundle\Command;
 
 use Swarrot\Broker\Message;
 
-use Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 
 
 /**

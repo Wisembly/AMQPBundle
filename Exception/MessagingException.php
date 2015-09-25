@@ -1,8 +1,8 @@
 <?php
 namespace Wisembly\AmqpBundle\Exception;
 
-use Exception,
-    RuntimeException;
+use Exception;
+use RuntimeException;
 
 class MessagingException extends RuntimeException
 {

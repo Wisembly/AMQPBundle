@@ -3,23 +3,23 @@ namespace Wisembly\AmqpBundle\Broker;
 
 use InvalidArgumentException;
 
-use AMQPQueue,
-    AMQPChannel,
-    AMQPExchange,
-    AMQPConnection,
+use AMQPQueue;
+use AMQPChannel;
+use AMQPExchange;
+use AMQPConnection;
 
-    AMQPException,
-    AMQPChannelException,
-    AMQPExchangeException,
-    AMQPConnectionException;
+use AMQPException;
+use AMQPChannelException;
+use AMQPExchangeException;
+use AMQPConnectionException;
 
-use Swarrot\Broker\MessageProvider\PeclPackageMessageProvider,
-    Swarrot\Broker\MessagePublisher\PeclPackageMessagePublisher;
+use Swarrot\Broker\MessageProvider\PeclPackageMessageProvider;
+use Swarrot\Broker\MessagePublisher\PeclPackageMessagePublisher;
 
-use Wisembly\AmqpBundle\Gate,
-    Wisembly\AmqpBundle\Connection,
-    Wisembly\AmqpBundle\BrokerInterface,
-    Wisembly\AmqpBundle\Exception\MessagingException;
+use Wisembly\AmqpBundle\Gate;
+use Wisembly\AmqpBundle\Connection;
+use Wisembly\AmqpBundle\BrokerInterface;
+use Wisembly\AmqpBundle\Exception\MessagingException;
 
 class PeclBroker implements BrokerInterface
 {

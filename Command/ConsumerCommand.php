@@ -2,18 +2,18 @@
 
 namespace Wisembly\AmqpBundle\Command;
 
-use Symfony\Component\Console\Input\InputOption,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface,
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
-    Symfony\Component\Process\ProcessBuilder,
-    Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 
-use Swarrot\Consumer,
+use Swarrot\Consumer;
 
-    Swarrot\Processor\RPC\RpcServerProcessor,
-    Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor;
+use Swarrot\Processor\RPC\RpcServerProcessor;
+use Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor;
 
 use Wisembly\AmqpBundle\Processor\CommandProcessor;
 

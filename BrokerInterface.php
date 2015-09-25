@@ -1,8 +1,8 @@
 <?php
 namespace Wisembly\AmqpBundle;
 
-use Swarrot\Broker\MessageProvider\MessageProviderInterface,
-    Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
+use Swarrot\Broker\MessageProvider\MessageProviderInterface;
+use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
 
 /**
  * BrokerInterface

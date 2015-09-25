@@ -2,12 +2,12 @@
 
 namespace Wisembly\AmqpBundle;
 
-use Symfony\Component\HttpKernel\Bundle\Bundle,
-    Symfony\Component\DependencyInjection\ContainerBuilder,
-    Symfony\Component\DependencyInjection\Compiler\PassConfig;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 
-use Wisembly\AmqpBundle\DependencyInjection\Compiler\GatePass,
-    Wisembly\AmqpBundle\DependencyInjection\Compiler\BrokerPass;
+use Wisembly\AmqpBundle\DependencyInjection\Compiler\GatePass;
+use Wisembly\AmqpBundle\DependencyInjection\Compiler\BrokerPass;
 
 class WisemblyAmqpBundle extends Bundle
 {

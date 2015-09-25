@@ -1,15 +1,15 @@
 <?php
 namespace Wisembly\AmqpBundle;
 
-use Datetime,
-    UnexpectedValueException;
+use Datetime;
+use UnexpectedValueException;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 use Swarrot\Broker\Message;
 
-use Wisembly\CoreBundle\Domain\Bag,
-    Wisembly\AmqpBundle\EventListener\MessagePublishedEvent;
+use Wisembly\CoreBundle\Domain\Bag;
+use Wisembly\AmqpBundle\EventListener\MessagePublishedEvent;
 
 /**
  * Publisher for AMQP Messages

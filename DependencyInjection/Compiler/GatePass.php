@@ -2,12 +2,12 @@
 
 namespace Wisembly\AmqpBundle\DependencyInjection\Compiler;
 
-use ReflectionClass,
-    InvalidArgumentException;
+use ReflectionClass;
+use InvalidArgumentException;
 
-use Symfony\Component\DependencyInjection\Definition,
-    Symfony\Component\DependencyInjection\ContainerBuilder,
-    Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
  * Tranforms the gate into a GateBag full of Gate objects

@@ -3,10 +3,10 @@ namespace Wisembly\AmqpBundle\DataCollector;
 
 use Exception;
 
-use Symfony\Component\HttpFoundation\Request,
-    Symfony\Component\HttpFoundation\Response,
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-    Symfony\Component\HttpKernel\DataCollector\DataCollector;
+use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 
 /**
  * Collect all the data when sending a message through our publisher

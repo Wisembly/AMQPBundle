@@ -2,11 +2,11 @@
 
 namespace Wisembly\AmqpBundle\DependencyInjection\Compiler;
 
-use ReflectionClass,
-    InvalidArgumentException;
+use ReflectionClass;
+use InvalidArgumentException;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder,
-    Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
  * Determine and instanciate which RabbitMq Broker to use
