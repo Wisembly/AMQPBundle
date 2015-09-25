@@ -1,31 +1,35 @@
 <?php
-namespace Wisembly\AmqpBundle\Tests\Processor;
+namespace Wisembly\AmqpBundle\Processor;
 
 use PHPUnit_Framework_TestCase;
 
+use Symfony\Component\Process\ProcessBuilder;
 use Symfony\Component\Console\Output\OutputInterface;
 
-use Swarrot\Broker\Message;
+use Psr\Log\LoggerInterface;
 
-use Wisembly\CoreBundle\Traits\Tests\MockWithoutConstructor;
+use Swarrot\Broker\Message;
+use Swarrot\Broker\MessageProvider\MessageProviderInterface;
+use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
+
+use Swarrot\Processor\ProcessorInterface;
+
 use Wisembly\AmqpBundle\Processor\CommandProcessor;
 
 class CommandProcessorTest extends PHPUnit_Framework_TestCase
 {
-    use MockWithoutConstructor;
-
     public function testItIsInitializable()
     {
-        $processor = new CommandProcessor($this->getMockWithoutConstructor('Psr\\Log\\LoggerInterface'),
-                                          $this->getMockWithoutConstructor('Symfony\\Component\\Process\\ProcessBuilder'),
-                                          $this->getMockWithoutConstructor('Swarrot\\Broker\\MessageProvider\\MessageProviderInterface'),
-                                          $this->getMockWithoutConstructor('Swarrot\\Broker\\MessagePublisher\\MessagePublisherInterface'),
+        $processor = new CommandProcessor($this->getMock(LoggerInterface::class),
+                                          $this->getMock(ProcessBuilder::class),
+                                          $this->getMock(MessageProviderInterface::class),
+                                          $this->getMock(MessagePublisherInterface::class),
                                           'path/to/command',
                                           'path/to/php',
                                           'dev');
 
-        $this->assertInstanceOf('Swarrot\\Processor\\ProcessorInterface', $processor);
-        $this->assertInstanceOf('Wisembly\\AmqpBundle\\Processor\\CommandProcessor', $processor);
+        $this->assertInstanceOf(ProcessorInterface::class, $processor);
+        $this->assertInstanceOf(CommandProcessor::class, $processor);
     }
 
     public function testAckIfSuccessful()
@@ -35,8 +39,8 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
 
         $message = new Message(json_encode($body), ['wisembly_attempts' => CommandProcessor::MAX_ATTEMPTS]);
 
-        $logger   = $this->getMockWithoutConstructor('Psr\\Log\\LoggerInterface');
-        $provider = $this->getMockWithoutConstructor('Swarrot\\Broker\\MessageProvider\\MessageProviderInterface');
+        $logger   = $this->getMock(LoggerInterface::class);
+        $provider = $this->getMock(MessageProviderInterface::class);
 
         $logger->expects(static::exactly(2))
                ->method('info')
@@ -58,7 +62,7 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
         $processor = new CommandProcessor($logger,
                                           $this->getProcessBuilderMock(true, $modifiedBody['arguments']),
                                           $provider,
-                                          $this->getMockWithoutConstructor('Swarrot\\Broker\\MessagePublisher\\MessagePublisherInterface'),
+                                          $this->getMock(MessagePublisherInterface::class),
                                           'path/to/command',
                                           'path/to/php',
                                           'dev'
@@ -74,8 +78,8 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
 
         $message = new Message(json_encode($body), ['wisembly_attempts' => CommandProcessor::MAX_ATTEMPTS]);
 
-        $logger   = $this->getMockWithoutConstructor('Psr\\Log\\LoggerInterface');
-        $provider = $this->getMockWithoutConstructor('Swarrot\\Broker\\MessageProvider\\MessageProviderInterface');
+        $logger   = $this->getMock(LoggerInterface::class);
+        $provider = $this->getMock(MessageProviderInterface::class);
 
         $logger->expects(static::once())
                ->method('info')
@@ -98,7 +102,7 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
         $processor = new CommandProcessor($logger,
                                           $this->getProcessBuilderMock(false, $modifiedBody['arguments']),
                                           $provider,
-                                          $this->getMockWithoutConstructor('Swarrot\\Broker\\MessagePublisher\\MessagePublisherInterface'),
+                                          $this->getMock(MessagePublisherInterface::class),
                                           'path/to/command',
                                           'path/to/php',
                                           'prod');
@@ -113,9 +117,9 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
 
         $message = new Message(json_encode($body));
 
-        $logger    = $this->getMockWithoutConstructor('Psr\\Log\\LoggerInterface');
-        $provider  = $this->getMockWithoutConstructor('Swarrot\\Broker\\MessageProvider\\MessageProviderInterface');
-        $publisher = $this->getMockWithoutConstructor('Swarrot\\Broker\\MessagePublisher\\MessagePublisherInterface');
+        $logger    = $this->getMock(LoggerInterface::class);
+        $provider  = $this->getMock(MessageProviderInterface::class);
+        $publisher = $this->getMock(MessagePublisherInterface::class);
 
         $logger->expects(static::once())
                ->method('info')
@@ -153,8 +157,8 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
 
     private function getProcessBuilderMock($success = true, array $arguments = [])
     {
-        $process  = $this->getMockWithoutConstructor('Symfony\\Component\\Process\\Process', 'run', 'isSuccessful', 'getExitCode', 'getErrorOutput');
-        $builder  = $this->getMockWithoutConstructor('Symfony\\Component\\Process\\ProcessBuilder', 'setPrefix', 'setArguments', 'getProcess');
+        $process  = $this->getMock(Process::class, ['run', 'isSuccessful', 'getExitCode', 'getErrorOutput'], [], '', false);
+        $builder  = $this->getMock(ProcessBuilder::class, ['setPrefix', 'setArguments', 'getProcess'], [], '', false);
 
         $process->expects(static::once())
                 ->method('run')
