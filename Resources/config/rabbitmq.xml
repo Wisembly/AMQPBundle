@@ -28,7 +28,7 @@
             <argument type="service" id="wisembly.amqp.gates" />
         </service>
 
-        <service id="wisembly.amqp.gates" class="Wisembly\CoreBundle\Domain\Bag" />
+        <service id="wisembly.amqp.gates" class="Wisembly\AmqpBundle\Bag" />
     </services>
 </container>
 

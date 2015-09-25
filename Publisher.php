@@ -8,7 +8,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 use Swarrot\Broker\Message;
 
-use Wisembly\CoreBundle\Domain\Bag;
+use Wisembly\AMQPBundle\Bag;
 use Wisembly\AmqpBundle\EventListener\MessagePublishedEvent;
 
 /**
