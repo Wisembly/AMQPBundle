@@ -1,0 +1,41 @@
+{
+    "name": "wisembly/amqp-bundle",
+    "description": "Alternative for SwarrotBundle to handle amqp in Symfony2 applications",
+    "type": "symfony-bundle",
+    "license": "MIT",
+
+    "require": {
+        "php": "~5.5",
+        "swarrot/swarrot": "~2.0",
+
+        "symfony/console": "~2.6",
+        "symfony/process": "~2.6",
+        "symfony/framework-bundle": "~2.6"
+    },
+
+    "require-dev": {
+        "phpunit/phpunit": "^4.8"
+    },
+
+    "suggest": {
+        "videlalvaro/php-amqplib": "~2.0"
+    },
+
+    "authors": [
+        {
+            "name": "Baptiste Clavié",
+            "email": "baptiste@wisembly.com"
+        },
+
+        {
+            "name": "Wisembly",
+            "email": "contact@wisembly.com"
+        }
+    ],
+
+    "autoload": {
+        "psr-4": {
+            "Wisembly\\AmqpBundle\\": ["src", "tests"] 
+        }
+    }
+}
