@@ -43,18 +43,18 @@ class ConsumerCommand extends ContainerAwareCommand
         $container = $this->getContainer();
         $gate = $input->getArgument('gate');
 
+		$kernel = $container->get('kernel');
         $broker = $container->get('wisembly.amqp.broker');
         $logger = $container->get('monolog.logger.consumer');
         $gate = $container->get('wisembly.amqp.gates')->get($gate);
-        $environment = $container->get('kernel')->getEnvironment();
 
         $provider = $broker->getProvider($gate);
         $producer = $broker->getProducer($gate);
 
         $processor = new CommandProcessor($logger, new ProcessBuilder,
                                           $provider, $producer,
-                                          $container->getParameter('wisembly.core.path.console'), $container->getParameter('php_path'),
-                                          $environment,
+                                          $container->getRootDir() . '/app/console',
+                                          $kernel->getEnvironment(),
                                           true === $input->getOption('disable-verbosity-propagation')
                                             ? OutputInterface::VERBOSITY_QUIET
                                             : $output->getVerbosity()

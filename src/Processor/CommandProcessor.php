@@ -1,6 +1,7 @@
 <?php
 namespace Wisembly\AmqpBundle\Processor;
 
+use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
 use Symfony\Component\Process\Process;
@@ -36,15 +37,14 @@ class CommandProcessor implements ProcessorInterface
     /** @var string path to the sf console */
     private $commandPath;
 
-    public function __construct(LoggerInterface $logger, ProcessBuilder $builder, MessageProviderInterface $provider, MessagePublisherInterface $publisher, $commandPath, $phpPath, $environment, $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    public function __construct(LoggerInterface $logger = null, ProcessBuilder $builder, MessageProviderInterface $provider, MessagePublisherInterface $publisher, $commandPath, $environment, $verbosity = OutputInterface::VERBOSITY_NORMAL)
     {
-        $this->logger      = $logger;
-        $this->builder     = $builder;
-        $this->phpPath     = $phpPath;
-        $this->provider    = $provider;
-        $this->publisher   = $publisher;
+        $this->logger = $logger ?: new NullLogger;
+        $this->builder = $builder;
+        $this->provider = $provider;
+        $this->publisher = $publisher;
+        $this->verbosity = $verbosity;
         $this->commandPath = $commandPath;
-        $this->verbosity   = $verbosity;
         $this->environment = $environment;
 
         $this->builder->setTimeout(null);
@@ -53,7 +53,7 @@ class CommandProcessor implements ProcessorInterface
     public function process(Message $message, array $options)
     {
         $properties = $message->getProperties();
-        $body       = json_decode($message->getBody(), true);
+        $body = json_decode($message->getBody(), true);
 
         if (!isset($properties['wisembly_attempts'])) {
             $properties['wisembly_attempts'] = 0;
@@ -100,7 +100,7 @@ class CommandProcessor implements ProcessorInterface
             return;
         }
 
-        $this->builder->setPrefix([$this->phpPath, $this->commandPath, $body['command']]);
+        $this->builder->setPrefix([PHP_BINARY, $this->commandPath, $body['command']]);
         $this->builder->setArguments($body['arguments']);
 
         $process = $this->builder->getProcess();
