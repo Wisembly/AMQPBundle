@@ -33,6 +33,10 @@
         }
     ],
 
+    "bin": [
+        "bin/rabbit.sh"
+    ],
+
     "autoload": {
         "psr-4": {
             "Wisembly\\AmqpBundle\\": ["src", "tests"] 
