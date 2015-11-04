@@ -11,9 +11,9 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 
 
 /**
- * RabbitMQ Consumer
+ * RabbitMQ Publisher
  *
- * Consumer for rabbitmq messages. Dispatch it to the right command.
+ * Publish a rabbitmq messages.
  *
  * @author Baptiste Clavié <baptiste@wisembly.com>
  */
@@ -30,8 +30,8 @@ class PublishCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $gate = $input->getArgument('gate');
         $message = $input->getArgument('message');
+        $gate = $this->getContainer()->get('wisembly.amqp.gates')->get($input->getArgument('gate'));
 
         $body = ['message' => $message];
         $this->getContainer()->get('wisembly.amqp.publisher')->publish(new Message(json_encode($body)), $gate);
