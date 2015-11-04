@@ -23,7 +23,9 @@
     },
 
     "suggest": {
-        "videlalvaro/php-amqplib": "~2.0"
+        "pecl-amqp": "PHP AMQP extension",
+        "videlalvaro/php-amqplib": "If the pecl is not an option",
+        "odolbeau/rabbit-mq-admin-toolkit" : "Configuring automatically your queues, exchanges and bindings"
     },
 
     "authors": [
