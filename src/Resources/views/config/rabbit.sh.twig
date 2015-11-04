@@ -1,5 +1,0 @@
-#!/bin/sh
-set -e
-
-echo "# Importing mapping for {{ name }}"
-rabbitmqadmin import "{{ path }}/bin/rabbit/{{ name }}.json" -u {{ login }} -p {{ password }} -H {{ host }}
