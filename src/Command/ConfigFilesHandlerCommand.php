@@ -3,6 +3,8 @@ namespace Wisembly\AmqpBundle\Command;
 
 use InvalidArgumentException;
 
+use Symfony\Component\Filesystem\Filesytem;
+
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,7 +26,7 @@ class ConfigFilesHandlerCommand extends ContainerAwareCommand
 
     const UPDATE_ALL = 0b11; // php 5.6 for UPDATE_SH | UPDATE_JSON :(
 
-    const TARGET_DIRECTORY = '%s/bin/rabbit';
+    const TARGET_DIRECTORY = '%s/amqp/';
 
     protected function configure()
     {
@@ -52,7 +54,7 @@ HELP
         $flag = self::UPDATE_ALL;
         $container = $this->getContainer();
         $filters = $input->getOption('filter');
-        $rootPath = dirname($this->getApplication()->getKernel()->getRootDir());
+        $rootPath = sprintf(self::TARGET_DIRECTORY, $this->getApplication()->getKernel()->getCacheDir());
 
         $user = $password = null;
 
@@ -77,14 +79,13 @@ HELP
             }
         }
 
-
-        $filesystem = $container->get('filesystem');
+        $filesystem = new Filesystem;
         $templating = $container->get('templating');
         $connections = $container->getParameter('wisembly.amqp.connections');
 
-        if (!$filesystem->exists(sprintf(self::TARGET_DIRECTORY, $rootPath))) {
+        if (!$filesystem->exists($rootPath)) {
             $output->writeln('Creating new rabbit directory');
-            $filesystem->mkdir(sprintf(self::TARGET_DIRECTORY, $rootPath));
+            $filesystem->mkdir($rootPath);
         }
 
         $output->writeln('Dumping config into the bin directory...');
@@ -99,8 +100,8 @@ HELP
                 }
 
                 $file = $templating->render('WisemblyAmqpBundle:config:rabbit.sh.twig', $connection + ['path' => $rootPath, 'name' => $name]);
-                $filesystem->dumpFile(sprintf(self::TARGET_DIRECTORY . '/%s.sh', $rootPath, $name), $file, 0775);
-                $filesystem->chmod(sprintf(self::TARGET_DIRECTORY . '/%s.sh', $rootPath, $name), 0775);
+                $filesystem->dumpFile(sprintf('%s/%s.sh', $rootPath, $name), $file, 0775);
+                $filesystem->chmod(sprintf('%s/%s.sh', $rootPath, $name), 0775);
             }
 
             if ($flag & self::UPDATE_JSON) {
@@ -111,7 +112,7 @@ HELP
                 $output->writeln(sprintf('Dumping the json configuration file for the <info>%s</info> connection', $name));
 
                 $file = $templating->render(sprintf('WisemblyAmqpBundle:config:%s.json.twig', $name), $connection);
-                $filesystem->dumpFile(sprintf(self::TARGET_DIRECTORY . '/%s.json', $rootPath, $name), $file);
+                $filesystem->dumpFile(sprintf('%s/%s.json', $rootPath, $name), $file);
             }
         }
     }

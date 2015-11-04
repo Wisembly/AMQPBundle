@@ -64,6 +64,8 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+BINARY_PATHS="$ROOT_PATH/app/cache/$env/amqp"
+
 if ! type "rabbitmqadmin" > /dev/null; then
     noRabbitMqAdmin=1
 else
@@ -105,7 +107,8 @@ echo
 echo "#Generating config files..."
 php "$ROOT_PATH/../app/console" wisembly:amqp:config-handler -vv $args
 
-for f in $(ls "$ROOT_PATH/rabbit" | grep "sh"); do
+for f in $(ls "$BINARY_PATH" | grep "sh"); do
     echo
-    "$ROOT_PATH/rabbit/$f"
+    "$BINARY_PATH/$f"
 done
+
