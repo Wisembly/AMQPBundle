@@ -41,7 +41,7 @@ class Configuration implements ConfigurationInterface
 
                         ->scalarNode('broker')
                             ->info('Broker to use')
-                            ->defaultValue('oldsound')
+                            ->isRequired()
                         ->end()
 
                         ->arrayNode('connections')
