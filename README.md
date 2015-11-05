@@ -40,43 +40,40 @@ The configuration reference can be found through the command
 ```yaml
 wisembly_amqp:
 
-    # AMQP Configuration
-    amqp:
+    # Default connection to use
+    default_connection:   null
 
-        # Default connection to use
-        default_connection:   null
+    # Broker to use
+    broker:               ~ # Required
 
-        # Broker to use
-        broker:               ~ # Required
+    # Connections to AMQP to use
+    connections:          # Required
 
-        # Connections to AMQP to use
-        connections:          # Required
+        # Prototype
+        name:
+            host:                 ~ # Required
+            port:                 ~ # Required
+            login:                ~ # Required
+            password:             ~ # Required
+            vhost:                /
 
-            # Prototype
-            name:
-                host:                 ~ # Required
-                port:                 ~ # Required
-                login:                ~ # Required
-                password:             ~ # Required
-                vhost:                /
+    # Access gate for each dialog with AMQP
+    gates:
 
-        # Access gate for each dialog with AMQP
-        gates:
+        # Prototype
+        name:
 
-            # Prototype
-            name:
+            # Connection to use with this gate
+            connection:           null
 
-                # Connection to use with this gate
-                connection:           null
+            # Exchange point associated to this gate
+            exchange:             ~ # Required
 
-                # Exchange point associated to this gate
-                exchange:             ~ # Required
+            # Routing key to use when sending messages through this gate
+            routing_key:          null
 
-                # Routing key to use when sending messages through this gate
-                routing_key:          null
-
-                # Queue to fetch the information from
-                queue:                ~ # Required
+            # Queue to fetch the information from
+            queue:                ~ # Required
 ```
 
 Usage
