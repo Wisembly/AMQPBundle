@@ -23,8 +23,15 @@ class Gate
     /** @var string Routing key */
     private $key = null;
 
-    public function __construct(Connection $connection, $name, $exchange, $queue)
+    /**
+     * @param string $name Gate's name
+     * @param string $exchange Exchange's name
+     * @param string $queue Queue's name
+     * @param string|null $key routing key to use
+     */
+    public function __construct(Connection $connection, $name, $exchange, $queue, $key = null)
     {
+        $this->key = $key;
         $this->name = $name;
         $this->queue = $queue;
         $this->exchange = $exchange;
@@ -53,18 +60,6 @@ class Gate
     public function getRoutingKey()
     {
         return $this->key;
-    }
-
-    /**
-     * @param string $key Routing key to use
-     *
-     * @return static
-     */
-    public function setRoutingKey($key)
-    {
-        $this->key = $key;
-
-        return $this;
     }
 
     /** @return string Connection's name to use */
