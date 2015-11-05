@@ -93,8 +93,11 @@ understood by the `CommandProcessor` :
 ```php
 use Swarrot\Broker\Message;
 
-$gates = $this->get('wisembly.amqp.gates');
-$gate = $gates->get('my_gate');
+$gate = $this->get('wisembly.amqp.gates.my_gate');
+
+// or you can fetch the bag of gates :
+// $gates = $this->get('wisembly.amqp.gates');
+// $gate = $gates->get('my_gate');
 
 $publisher = $this->get('wisembly.amqp.publisher);
 

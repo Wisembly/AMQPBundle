@@ -2,6 +2,7 @@
 
 namespace Wisembly\AmqpBundle\DependencyInjection\Compiler;
 
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -41,7 +42,11 @@ class GatePass implements CompilerPassInterface
             $gateDefinition->addMethodCall('setRoutingKey', [$config['routing_key']])
                            ->addMethodCall('setExtras', [$config['extras']]);
 
-            $definition->addMethodCall('add', [$gateDefinition]);
+            $id = sprintf('wisembly.amqp.gates.%s', $name);
+
+            $container->setDefinition($id, $gateDefinition);
+
+            $definition->addMethodCall('add', [new Reference($id)]);
         }
     }
 }
