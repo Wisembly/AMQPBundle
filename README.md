@@ -77,9 +77,6 @@ wisembly_amqp:
 
                 # Queue to fetch the information from
                 queue:                ~ # Required
-
-                # Extra configuration to pass into this gate
-                extras:               []
 ```
 
 Usage

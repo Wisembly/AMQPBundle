@@ -23,9 +23,6 @@ class Gate
     /** @var string Routing key */
     private $key = null;
 
-    /** @var mixed[] Extras associated to this gate */
-    private $extras = [];
-
     public function __construct(Connection $connection, $name, $exchange, $queue)
     {
         $this->name = $name;
@@ -74,24 +71,6 @@ class Gate
     public function getConnection()
     {
         return $this->connection;
-    }
-
-    /** @return mixed[] */
-    public function getExtras()
-    {
-        return $this->extras;
-    }
-
-    /**
-     * @param array $extras Extra parameters associated to this gate
-     *
-     * @return static
-     */
-    public function setExtras(array $extras)
-    {
-        $this->extras = $extras;
-
-        return $this;
     }
 }
 

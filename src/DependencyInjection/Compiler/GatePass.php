@@ -39,8 +39,7 @@ class GatePass implements CompilerPassInterface
         foreach ($container->getParameter('wisembly.amqp.gates') as $name => $config) {
             $gateDefinition = new Definition(Gate::class, [$connections[$config['connection']], $name, $config['exchange'], $config['queue']]);
 
-            $gateDefinition->addMethodCall('setRoutingKey', [$config['routing_key']])
-                           ->addMethodCall('setExtras', [$config['extras']]);
+            $gateDefinition->addMethodCall('setRoutingKey', [$config['routing_key']]);
 
             $id = sprintf('wisembly.amqp.gates.%s', $name);
 
