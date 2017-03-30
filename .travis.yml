@@ -1,0 +1,10 @@
+language: php
+cache:
+    apt: true
+    directories:
+        - $HOME/.composer/cache
+php:
+    - '7.0'
+    - '7.1'
+before_script:
+    - composer install
