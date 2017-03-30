@@ -25,7 +25,6 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                                           $this->getMock(MessageProviderInterface::class),
                                           $this->getMock(MessagePublisherInterface::class),
                                           'path/to/command',
-                                          'path/to/php',
                                           'dev');
 
         $this->assertInstanceOf(ProcessorInterface::class, $processor);
@@ -64,7 +63,6 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                                           $provider,
                                           $this->getMock(MessagePublisherInterface::class),
                                           'path/to/command',
-                                          'path/to/php',
                                           'dev'
         );
 
@@ -104,7 +102,6 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                                           $provider,
                                           $this->getMock(MessagePublisherInterface::class),
                                           'path/to/command',
-                                          'path/to/php',
                                           'prod');
 
         $processor->process($message, []);
@@ -149,7 +146,6 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
                                           $provider,
                                           $publisher,
                                           'path/to/command',
-                                          'path/to/php',
                                           'dev');
 
         $processor->process($message, []);
@@ -177,7 +173,7 @@ class CommandProcessorTest extends PHPUnit_Framework_TestCase
 
         $builder->expects(static::exactly(2))
                 ->method('setPrefix')
-                ->with(static::logicalOr(['path/to/php', 'path/to/command', 'foo'], []));
+                ->with(static::logicalOr([PHP_BINARY, 'path/to/command', 'foo'], []));
 
         $builder->expects(static::exactly(2))
                 ->method('setArguments')
