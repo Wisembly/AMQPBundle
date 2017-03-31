@@ -53,7 +53,7 @@ class ConsumerCommand extends ContainerAwareCommand
 
         $processor = new CommandProcessor($logger, new ProcessBuilder,
                                           $provider, $producer,
-                                          $container->getRootDir() . '/app/console',
+                                          $kernel->getRootDir() . '/app/console',
                                           $kernel->getEnvironment(),
                                           true === $input->getOption('disable-verbosity-propagation')
                                             ? OutputInterface::VERBOSITY_QUIET
