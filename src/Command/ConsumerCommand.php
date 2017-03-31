@@ -45,7 +45,7 @@ class ConsumerCommand extends ContainerAwareCommand
 
         $kernel = $container->get('kernel');
         $broker = $container->get('wisembly.amqp.broker');
-        $logger = $container->get('monolog.logger.consumer');
+        $logger = $container->get('logger');
         $gate = $container->get('wisembly.amqp.gates')->get($gate);
 
         $provider = $broker->getProvider($gate);
