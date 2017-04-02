@@ -103,6 +103,13 @@ class CommandProcessor implements ProcessorInterface
         $this->builder->setPrefix([PHP_BINARY, $this->commandPath, $body['command']]);
         $this->builder->setArguments($body['arguments']);
 
+        // a stdin is provided, let's send it to the command
+        if (isset($body['stdin'])) {
+            $this->builder->setInput($body['stdin']);
+            // I remove the stdin for the logs
+            unset($body['stdin']);
+        }
+
         $process = $this->builder->getProcess();
         $process->run(function ($type, $data) {
             switch ($type) {
