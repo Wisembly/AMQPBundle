@@ -23,6 +23,13 @@ use Wisembly\AmqpBundle\Exception\MessagingException;
 
 class PeclBroker implements BrokerInterface
 {
+    const TYPES = [
+        'direct' => AMQP_EX_TYPE_DIRECT,
+        'fanout' => AMQP_EX_TYPE_FANOUT,
+        'headers' => AMQP_EX_TYPE_HEADERS,
+        'topic' => AMQP_EX_TYPE_TOPIC,
+    ];
+
     /** @var AMQPChannel[] */
     private $channels = [];
 
@@ -43,7 +50,9 @@ class PeclBroker implements BrokerInterface
         }
 
         if (!isset($this->providers[$connection][$name])) {
-            $queue = new AMQPQueue($this->getChannel($gate->getConnection()));
+            $channel = $this->getChannel($gate->getConnection());
+            $this->declare($gate, $channel);
+            $queue = new AMQPQueue($channel);
             $queue->setName($gate->getQueue());
 
             $this->providers[$connection][$name] = new PeclPackageMessageProvider($queue);
@@ -64,7 +73,9 @@ class PeclBroker implements BrokerInterface
 
         if (!isset($this->producers[$connection][$name])) {
             try {
-                $exchange = new AMQPExchange($this->getChannel($gate->getConnection()));
+                $channel = $this->getChannel($gate->getConnection());
+                $this->declare($gate, $channel);
+                $exchange = new AMQPExchange($channel);
                 $exchange->setName($gate->getExchange());
             } catch (AMQPExchangeException $e) {
                 throw new MessagingException($e);
@@ -74,6 +85,57 @@ class PeclBroker implements BrokerInterface
         }
 
         return $this->producers[$connection][$name];
+    }
+
+    private function declare(Gate $gate, AMQPChannel $channel)
+    {
+        if (false === $gate->getAutoDeclare()) {
+            return;
+        }
+
+        $options = $gate->getQueueOptions();
+        $queue = new AMQPQueue($channel);
+        $queue->setName($gate->getQueue());
+
+        $flags = 0;
+        if ($options['durable'] ?? false) {
+            $flags &= \AMQP_DURABLE;
+        }
+        if ($options['passive'] ?? false) {
+            $flags &= \AMQP_PASSIVE;
+        }
+        if ($options['exclusive'] ?? false) {
+            $flags &= \AMQP_EXCLUSIVE;
+        }
+        if ($options['auto-delete'] ?? false) {
+            $flags &= \AMQP_AUTODELETE;
+        }
+
+        $queue->setFlags($flags);
+        $queue->setArguments($options['arguments'] ?? []);
+        $queue->declareQueue();
+
+        $options = $gate->getExchangeOptions();
+        $exchange = new AMQPExchange($channel);
+        $exchange->setName($gate->getExchange());
+
+        $flags = 0;
+        if ($options['durable'] ?? false) {
+            $flags &= \AMQP_DURABLE;
+        }
+        if ($options['passive'] ?? false) {
+            $flags &= \AMQP_PASSIVE;
+        }
+
+        $exchange->setFlags($flags);
+        $exchange->setArguments($options['arguments'] ?? []);
+        $exchange->setType(self::TYPES[$options['type'] ?? 'direct'] ?? 'direct');
+
+        $queue->bind(
+            $gate->getExchange(),
+            $queue->getRoutingKey() ?: '',
+            [] // arguments
+        );
     }
 
     public function __destruct()
