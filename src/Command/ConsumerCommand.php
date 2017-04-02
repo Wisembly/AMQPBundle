@@ -14,6 +14,7 @@ use Swarrot\Consumer;
 
 use Swarrot\Processor\RPC\RpcServerProcessor;
 use Swarrot\Processor\MemoryLimit\MemoryLimitProcessor;
+use Swarrot\Processor\SignalHandler\SignalHandlerProcessor;
 use Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor;
 
 use Wisembly\AmqpBundle\Processor\CommandProcessor;
@@ -69,6 +70,8 @@ class ConsumerCommand extends ContainerAwareCommand
 
         $processor = new ExceptionCatcherProcessor($processor, $logger);
         $options = [];
+
+        $processor = new SignalHandlerProcessor($processor, $logger);
 
         // we apply a memory limit to the consumer
         if (null !== $input->getOption('memory-limit')) {
