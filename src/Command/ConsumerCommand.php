@@ -54,13 +54,14 @@ class ConsumerCommand extends ContainerAwareCommand
         $provider = $broker->getProvider($gate);
         $producer = $broker->getProducer($gate);
 
-        $processor = new CommandProcessor($logger, new ProcessBuilder,
-                                          $provider, $producer,
-                                          $kernel->getRootDir() . '/app/console',
-                                          $kernel->getEnvironment(),
-                                          true === $input->getOption('disable-verbosity-propagation')
-                                            ? OutputInterface::VERBOSITY_QUIET
-                                            : $output->getVerbosity()
+        $processor = new CommandProcessor(
+            $logger,
+            new ProcessBuilder,
+            $provider,
+            $producer,
+            realpath($_SERVER['argv'][0] ?? sprintf('%s/bin/console', $kernel->getRootDir())),
+            $kernel->getEnvironment(),
+            true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity()
         );
 
         // if we want a rpc mechanism, let's wrap a rpc server processor
