@@ -13,6 +13,8 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Swarrot\Consumer;
 
 use Swarrot\Processor\RPC\RpcServerProcessor;
+use Swarrot\Processor\MemoryLimit\MemoryLimitProcessor;
+use Swarrot\Processor\SignalHandler\SignalHandlerProcessor;
 use Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor;
 
 use Wisembly\AmqpBundle\Processor\CommandProcessor;
@@ -35,7 +37,8 @@ class ConsumerCommand extends ContainerAwareCommand
 
         $this->addOption('rpc', null, InputOption::VALUE_NONE, 'Use a RPC mechanism ?')
              ->addOption('disable-verbosity-propagation', null, InputOption::VALUE_NONE, 'Do not spread the verbosity to the child command')
-             ->addOption('poll-interval', null, InputOption::VALUE_REQUIRED, 'poll interval, in micro-seconds', 50000);
+             ->addOption('poll-interval', null, InputOption::VALUE_REQUIRED, 'poll interval, in micro-seconds', 50000)
+             ->addOption('memory-limit', null, InputOption::VALUE_REQUIRED, 'memory limit use by the consumer, in MB');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -65,8 +68,19 @@ class ConsumerCommand extends ContainerAwareCommand
             $processor = new RpcServerProcessor($processor, $producer, $logger);
         }
 
+        $processor = new ExceptionCatcherProcessor($processor, $logger);
+        $options = [];
+
+        $processor = new SignalHandlerProcessor($processor, $logger);
+
+        // we apply a memory limit to the consumer
+        if (null !== $input->getOption('memory-limit')) {
+            $processor = new MemoryLimitProcessor($processor, $logger);
+            $options['memory_limit'] = (int) $input->getOption('memory-limit');
+        }
+
         // Wrap processor in an Swarrot ExceptionCatcherProcessor to avoid breaking processor if an error occurs
-        $consumer  = new Consumer($provider, new ExceptionCatcherProcessor($processor, $logger));
+        $consumer  = new Consumer($provider, $processor);
 
         $consumer->consume(['poll_interval' => $input->getOption('poll-interval')]);
     }
