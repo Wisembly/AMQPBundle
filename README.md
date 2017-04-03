@@ -51,11 +51,11 @@ wisembly_amqp:
 
         # Prototype
         name:
-            host:                 ~ # Required
-            port:                 ~ # Required
-            login:                ~ # Required
-            password:             ~ # Required
-            vhost:                /
+            host:                  ~ # Required
+            port:                  ~ # Required
+            login:                 ~ # Required
+            password:              ~ # Required
+            vhost:                 /
 
     # Access gate for each dialog with AMQP
     gates:
@@ -64,16 +64,34 @@ wisembly_amqp:
         name:
 
             # Connection to use with this gate
-            connection:           null
+            connection:            null
+
+            # Does the queue and the exchange be declared before use them
+            auto_declare:          true
 
             # Exchange point associated to this gate
-            exchange:             ~ # Required
+            exchange:
+                name:               ~ # Required
+                options:
+                    type:           direct
+                    passive:        false
+                    durable:        true
+                    auto_delete:    false
+                    internal:       false
+                    arguments:      {  }
 
             # Routing key to use when sending messages through this gate
-            routing_key:          null
+            routing_key:            null
 
             # Queue to fetch the information from
-            queue:                ~ # Required
+            queue:
+                name:               ~ # Required
+                options:
+                    passive:        false
+                    durable:        true
+                    exclusive:      false
+                    auto_delete:    false
+                    arguments:      { }
 ```
 
 Usage
@@ -115,7 +133,7 @@ and use whatever you need !
 
 ### Consuming a Message
 In order to consume the messages that are expected by this bundle, all you have
-to do is run the following command : 
+to do is run the following command :
 
 ```
 php app/console wisembly:amqp:consume gate
@@ -129,7 +147,7 @@ to treat it, and will pass the environment and verbosity to the command that is
 runned. The output will then be retrieved and printed on the consumer's output.
 
 ### Implementing a Broker
-Two brokers are built-in : 
+Two brokers are built-in :
 
 - the `pecl` ([php amqp extension](https://pecl.php.net/package/amqp)) ;
 - [`oldsound`](https://github.com/videlalvaro/php-amqplib), which is the one

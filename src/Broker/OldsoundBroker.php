@@ -43,7 +43,12 @@ class OldsoundBroker implements BrokerInterface
         }
 
         if (!isset($this->providers[$connection][$name])) {
-            $this->providers[$connection][$name] = new PhpAmqpLibMessageProvider($this->getChannel($gate->getConnection()), $gate->getQueue());
+            $channel = $this->getChannel($gate->getConnection());
+            $this->declare($gate, $channel);
+            $this->providers[$connection][$name] = new PhpAmqpLibMessageProvider(
+                $channel,
+                $gate->getQueue()
+            );
         }
 
         return $this->providers[$connection][$name];
@@ -60,10 +65,56 @@ class OldsoundBroker implements BrokerInterface
         }
 
         if (!isset($this->producers[$connection][$name])) {
-            $this->producers[$connection][$name] = new PhpAmqpLibMessagePublisher($this->getChannel($gate->getConnection()), $gate->getExchange());
+            $channel = $this->getChannel($gate->getConnection());
+            $this->declare($gate, $channel);
+            $this->producers[$connection][$name] = new PhpAmqpLibMessagePublisher(
+                $channel,
+                $gate->getExchange()
+            );
         }
 
         return $this->producers[$connection][$name];
+    }
+
+    private function declare(Gate $gate, AMQPChannel $channel)
+    {
+        if (false === $gate->getAutoDeclare()) {
+            return;
+        }
+
+        $options = $gate->getQueueOptions();
+        $channel->queue_declare(
+            $gate->getQueue(),
+            $options['passive'] ?? false,
+            $options['durable'] ?? true,
+            $options['exclusive'] ?? false,
+            $options['auto-delete'] ?? false,
+            false, // nowait
+            $options['arguments'] ?? null,
+            null // ticket
+        );
+
+        $options = $gate->getExchangeOptions();
+        $channel->exchange_declare(
+            $gate->getExchange(),
+            $options['type'] ?? 'direct',
+            $options['passive'] ?? false,
+            $options['durable'] ?? true,
+            $options['auto-delete'] ?? false,
+            false, // internal
+            false, // nowait
+            $options['arguments'] ?? null,
+            null // ticket
+        );
+
+        $channel->queue_bind(
+            $gate->getQueue(),
+            $gate->getExchange(),
+            $gate->getRoutingKey(),
+            false, // nowait
+            null, // arguments
+            null // ticket
+        );
     }
 
     /** {@inheritDoc} */
