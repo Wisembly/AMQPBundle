@@ -43,12 +43,12 @@ class GatePass implements CompilerPassInterface
             $gate
                 ->addArgument($connections[$config['connection']])
                 ->addArgument($name)
-                ->addArgument($config['exchange'])
-                ->addArgument($config['queue'])
+                ->addArgument($config['exchange']['name'])
+                ->addArgument($config['queue']['name'])
                 ->addArgument($config['routing_key'])
                 ->addArgument($config['auto_declare'])
-                ->addArgument($config['queue_options'])
-                ->addArgument($config['exchange_options']);
+                ->addArgument($config['queue']['options'])
+                ->addArgument($config['exchange']['options']);
 
             $definition->addMethodCall('add', [new Reference($id)]);
         }

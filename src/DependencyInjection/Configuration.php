@@ -65,55 +65,86 @@ class Configuration implements ConfigurationInterface
                         ->children()
                             ->booleanNode('auto_declare')->info('Does the queue and the exchange be declared before use them')->defaultTrue()->end()
                             ->scalarNode('connection')->info('Connection to use with this gate')->defaultNull()->end()
-                            ->scalarNode('exchange')->info('Exchange point associated to this gate')->isRequired()->end()
                             ->scalarNode('routing_key')->info('Routing key to use when sending messages through this gate')->defaultNull()->end()
-                            ->scalarNode('queue')->info('Queue to fetch the information from')->isRequired()->end()
-                            ->append($this->queueOptions())
-                            ->append($this->exchangeOptions())
+
+                            ->append($this->addQueueNode())
+                            ->append($this->addExchangeNode())
                         ->end()
                     ->end()
                 ->end()
             ->end();
     }
 
-    private function queueOptions()
+    private function addQueueNode()
     {
-        $builder = new TreeBuilder();
-        $node = $builder->root('queue_options');
+        $builder = new TreeBuilder;
+        $node = $builder->root('queue');
 
-        $node->info('Broker options to declare the queue')
+        return $node
+            ->info('Queue to fetch the information from')
+            ->isRequired()
+            ->addDefaultsIfNotSet()
+            ->beforeNormalization()
+                ->ifString()
+                ->then(function ($v) { return ['name' => $v]; })
+            ->end()
             ->children()
-                ->booleanNode('passive')->defaultFalse()->end()
-                ->booleanNode('durable')->defaultTrue()->end()
-                ->booleanNode('exclusive')->defaultFalse()->end()
-                ->booleanNode('auto_delete')->defaultFalse()->end()
-                ->arrayNode('arguments')
-                    ->useAttributeAsKey('name')
-                    ->prototype('scalar')->end()
+                ->scalarNode('name')->isRequired()->end()
+                ->arrayNode('options')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('passive')->defaultFalse()->end()
+                        ->booleanNode('durable')->defaultTrue()->end()
+                        ->booleanNode('exclusive')->defaultFalse()->end()
+                        ->booleanNode('auto_delete')->defaultFalse()->end()
+                        ->arrayNode('arguments')
+                            ->validate()
+                                ->ifEmpty()
+                                ->thenUnset()
+                            ->end()
+                            ->useAttributeAsKey('name')
+                            ->prototype('scalar')->end()
+                        ->end()
+                    ->end()
                 ->end()
-            ->end();
-
-        return $node;
+            ->end()
+        ;
     }
 
-    private function exchangeOptions()
+    private function addExchangeNode()
     {
-        $builder = new TreeBuilder();
-        $node = $builder->root('exchange_options');
+        $builder = new TreeBuilder;
+        $node = $builder->root('exchange');
 
-        $node->info('Broker options to declare the exchange')
+        return $node
+            ->info('Exchange point associated to this gate')
+            ->isRequired()
+            ->addDefaultsIfNotSet()
+            ->beforeNormalization()
+                ->ifString()
+                ->then(function ($v) { return ['name' => $v]; })
+            ->end()
             ->children()
-                ->scalarNode('type')->defaultFalse()->end()
-                ->booleanNode('passive')->defaultFalse()->end()
-                ->booleanNode('durable')->defaultTrue()->end()
-                ->booleanNode('auto_delete')->defaultFalse()->end()
-                ->booleanNode('internal')->defaultFalse()->end()
-                ->arrayNode('arguments')
-                    ->useAttributeAsKey('name')
-                    ->prototype('scalar')->end()
+                ->scalarNode('name')->isRequired()->end()
+                ->arrayNode('options')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('type')->defaultFalse()->end()
+                        ->booleanNode('passive')->defaultFalse()->end()
+                        ->booleanNode('durable')->defaultTrue()->end()
+                        ->booleanNode('auto_delete')->defaultFalse()->end()
+                        ->booleanNode('internal')->defaultFalse()->end()
+                        ->arrayNode('arguments')
+                            ->validate()
+                                ->ifEmpty()
+                                ->thenUnset()
+                            ->end()
+                            ->useAttributeAsKey('name')
+                            ->prototype('scalar')->end()
+                        ->end()
+                    ->end()
                 ->end()
-            ->end();
-
-        return $node;
+            ->end()
+        ;
     }
 }
