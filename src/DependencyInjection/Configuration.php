@@ -129,7 +129,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('options')
                     ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('type')->defaultFalse()->end()
+                        ->scalarNode('type')->defaultNull()->end()
                         ->booleanNode('passive')->defaultFalse()->end()
                         ->booleanNode('durable')->defaultTrue()->end()
                         ->booleanNode('auto_delete')->defaultFalse()->end()
