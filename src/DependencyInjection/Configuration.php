@@ -41,6 +41,11 @@ class Configuration implements ConfigurationInterface
                     ->isRequired()
                 ->end()
 
+                ->scalarNode('console_path')
+                    ->info('Path to sf console binary')
+                    ->isRequired()
+                ->end()
+
                 ->arrayNode('connections')
                     ->info('Connections to AMQP to use')
                     ->useAttributeAsKey('name')

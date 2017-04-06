@@ -1,14 +1,20 @@
 <?php
-
 namespace Wisembly\AmqpBundle\Command;
 
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+
+use Symfony\Component\Console\Exception\LogicException;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
+
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use Symfony\Component\Process\ProcessBuilder;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+
+use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 
 use Swarrot\Consumer;
 
@@ -17,6 +23,8 @@ use Swarrot\Processor\MemoryLimit\MemoryLimitProcessor;
 use Swarrot\Processor\SignalHandler\SignalHandlerProcessor;
 use Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor;
 
+use Wisembly\AmqpBundle\GatesBag;
+use Wisembly\AmqpBundle\BrokerInterface;
 use Wisembly\AmqpBundle\Processor\CommandProcessor;
 
 /**
@@ -26,8 +34,30 @@ use Wisembly\AmqpBundle\Processor\CommandProcessor;
  *
  * @author Baptiste Clavié <baptiste@wisembly.com>
  */
-class ConsumerCommand extends ContainerAwareCommand
+class ConsumerCommand extends Command
 {
+    /** @var LoggerInterface $logger */
+    private $logger;
+
+    /** @var GatesBag */
+    private $gates;
+
+    /** @var BrokerInterface */
+    private $broker;
+
+    /** @var string */
+    private $consolePath;
+
+    public function __construct(?LoggerInterface $logger, BrokerInterface $broker, GatesBag $gates, string $consolePath)
+    {
+        $this->gates = $gates;
+        $this->broker = $broker;
+        $this->consolePath = $consolePath;
+        $this->logger = $logger ?: new NullLogger;
+
+        parent::__construct();
+    }
+
     protected function configure()
     {
         $this->setName('wisembly:amqp:consume')
@@ -39,28 +69,29 @@ class ConsumerCommand extends ContainerAwareCommand
              ->addOption('disable-verbosity-propagation', null, InputOption::VALUE_NONE, 'Do not spread the verbosity to the child command')
              ->addOption('poll-interval', null, InputOption::VALUE_REQUIRED, 'poll interval, in micro-seconds', 50000)
              ->addOption('memory-limit', null, InputOption::VALUE_REQUIRED, 'memory limit use by the consumer, in MB');
+
+        try {
+            $this->addOption('env', null, InputOption::VALUE_REQUIRED, 'which environment to use ?', 'dev');
+        } catch (LogicException $e) {
+            // option already exists, skip adding it
+        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $container = $this->getContainer();
         $gate = $input->getArgument('gate');
+        $gate = $this->gates->get($gate);
 
-        $kernel = $container->get('kernel');
-        $broker = $container->get('wisembly.amqp.broker');
-        $logger = $container->get('logger');
-        $gate = $container->get('wisembly.amqp.gates')->get($gate);
-
-        $provider = $broker->getProvider($gate);
-        $producer = $broker->getProducer($gate);
+        $provider = $this->broker->getProvider($gate);
+        $producer = $this->broker->getProducer($gate);
 
         $processor = new CommandProcessor(
-            $logger,
+            $this->logger,
             new ProcessBuilder,
             $provider,
             $producer,
-            realpath($_SERVER['argv'][0] ?? sprintf('%s/bin/console', $kernel->getRootDir())),
-            $kernel->getEnvironment(),
+            $this->consolePath,
+            $input->getOption('env'),
             true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity()
         );
 
