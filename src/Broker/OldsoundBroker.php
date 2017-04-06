@@ -121,14 +121,12 @@ class OldsoundBroker implements BrokerInterface
     public function createTemporaryQueue(Gate $gate)
     {
         $key = $gate->getRoutingKey();
-        $extras = $gate->getExtras();
         $name = sha1(uniqid(mt_rand(), true));
         $connection = $gate->getConnection()->getName();
 
         // creating temporary gate
         $gate = new Gate($gate->getConnection(), $name, $gate->getExchange(), $name);
-        $gate->setRoutingKey($key)
-             ->setExtras($extras);
+        $gate->setRoutingKey($key);
 
         // creating temporary queuei
         if (!isset($this->providers[$connection])) {
