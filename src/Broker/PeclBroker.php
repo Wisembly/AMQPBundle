@@ -150,12 +150,10 @@ class PeclBroker implements BrokerInterface
     {
         $id = sha1(uniqid(mt_rand(), true));
         $key = $gate->getRoutingKey();
-        $extras = $gate->getExtras();
 
         // creating temporary gate
         $gate = new Gate($gate->getConnection(), $id, $gate->getExchange(), $id);
-        $gate->setRoutingKey($key)
-             ->setExtras($extras);
+        $gate->setRoutingKey($key);
 
         // creating temporary queue
         $queue = new AMQPQueue($this->getChannel($gate->getConnection()));

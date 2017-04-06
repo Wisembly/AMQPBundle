@@ -25,7 +25,6 @@ class MessagingListener implements EventSubscriberInterface
         $routingKey  = null === $gate->getRoutingKey() ? '' : sprintf(' : %s', $gate->getRoutingKey());
 
         $this->collector->addMessage(['gate'         => $gate->getName(),
-                                      'extras'       => $gate->getExtras(),
                                       'message'      => $event->getMessage(),
                                       'connection'   => $gate->getConnection(),
                                       'published_at' => $event->getPublishedAt(),
