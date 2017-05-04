@@ -40,7 +40,7 @@ class WisemblyAmqpExtension extends Extension
 
     private function registerGates(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
     {
-        $loader->load('rabbitmq.xml');
+        $loader->load('amqp.xml');
 
         // no default connection ? Take the first one
         if (null === $configuration['default_connection'] || !isset($configuration['connections'][$configuration['default_connection']])) {
