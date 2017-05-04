@@ -34,4 +34,3 @@ class Publisher
         $this->dispatcher->dispatch(MessagePublishedEvent::NAME, new MessagePublishedEvent($message, new Datetime, $gate));
     }
 }
-

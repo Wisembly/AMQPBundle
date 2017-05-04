@@ -36,5 +36,11 @@
             <argument>%kernel.root_dir%/%wisembly.amqp.console_path%"</argument>
             <tag name="console.command" />
         </service>
+
+        <service id="wisembly.amqp.command.publisher" class="Wisembly\AmqpBundle\Command\PublishCommand">
+            <argument type="service" id="wismebly.amqp.publisher" />
+            <argument type="service" id="wisembly.amqp.gates" />
+            <tag name="console.command" />
+        </service>
     </services>
 </container>
