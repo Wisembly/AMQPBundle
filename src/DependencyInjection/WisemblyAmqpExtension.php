@@ -29,13 +29,13 @@ class WisemblyAmqpExtension extends Extension
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
-        $this->loadGateConfiguration($container, $loader, $config);
-        $this->loadCommandConfiguration($container, $loader, $config);
+        $this->registerGates($container, $loader, $config);
+        $this->registerCommands($container, $loader, $config);
 
         $container->getParameterBag()->set('wisembly.amqp.broker', $config['broker']);
     }
 
-    private function loadGateConfiguration(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
+    private function registerGates(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
     {
         $loader->load('rabbitmq.xml');
 
@@ -83,7 +83,7 @@ class WisemblyAmqpExtension extends Extension
         }
     }
 
-    private function loadCommandConfiguration(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
+    private function registerCommands(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
     {
         $loader->load('commands.xml');
 
