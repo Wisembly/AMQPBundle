@@ -2,12 +2,15 @@
 
 namespace Wisembly\AmqpBundle\DependencyInjection;
 
-
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+
+use Wisembly\AmqpBundle\Gate;
+use Wisembly\AmqpBundle\Connection;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -26,13 +29,19 @@ class WisemblyAmqpExtension extends Extension
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
-        $this->loadAmqpConfiguration($container, $loader, $config);
+        $this->registerGates($container, $loader, $config);
+        $this->registerCommands($container, $loader, $config);
 
-        $loader->load('commands.xml');
+        $loader->load('brokers.xml');
+        $container->getParameterBag()->set('wisembly.amqp.broker', $config['broker']);
+
+        $loader->load('profiler.xml');
     }
 
-    private function loadAmqpConfiguration(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
+    private function registerGates(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
     {
+        $loader->load('amqp.xml');
+
         // no default connection ? Take the first one
         if (null === $configuration['default_connection'] || !isset($configuration['connections'][$configuration['default_connection']])) {
             reset($configuration['connections']);
@@ -48,18 +57,42 @@ class WisemblyAmqpExtension extends Extension
         $tmp[$configuration['default_connection']] = $default;
         $configuration['connections'] = array_reverse($tmp, true);
 
-        foreach ($configuration['gates'] as &$gate) {
+        $connections = [];
+
+        foreach ($configuration['connections'] as $name => $connection) {
+            $connections[$name] = new Definition(Connection::class, [$name, $connection['host'], $connection['port'], $connection['login'], $connection['password'], $connection['vhost']]);
+        }
+
+        $bagDefinition = $container->getDefinition('wisembly.amqp.gates');
+
+        foreach ($configuration['gates'] as $gate) {
             if (null === $gate['connection']) {
                 $gate['connection'] = $configuration['default_connection'];
             }
+
+            $gateDefinition = new Definition(Gate::class);
+
+            $gateDefinition
+                ->addArgument($connections[$gate['connection']])
+                ->addArgument($name)
+                ->addArgument($gate['exchange']['name'])
+                ->addArgument($gate['queue']['name'])
+                ->addArgument($gate['routing_key'])
+                ->addArgument($gate['auto_declare'])
+                ->addArgument($gate['queue']['options'])
+                ->addArgument($gate['exchange']['options']);
+
+            $bagDefinition->addMethodCall('add', [$gateDefinition]);
         }
+    }
 
-        foreach ($configuration as $key => $value) {
-            $container->setParameter('wisembly.amqp.' . $key, $value);
-        }
+    private function registerCommands(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
+    {
+        $loader->load('commands.xml');
 
-        $container->setParameter('wisembly.amqp.console_path', $configuration['console_path']);
+        $parameterBag = $container->getParameterBag();
 
-        $loader->load('rabbitmq.xml');
+        $definition = $container->getDefinition('wisembly.amqp.command.consumer');
+        $definition->replaceArgument(3, $configuration['console_path']);
     }
 }

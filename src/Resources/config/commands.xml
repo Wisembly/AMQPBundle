@@ -9,7 +9,7 @@
             <argument type="service" id="logger" on-invalid="null" />
             <argument type="service" id="wisembly.amqp.broker" />
             <argument type="service" id="wisembly.amqp.gates" />
-            <argument>%kernel.root_dir%/%wisembly.amqp.console_path%</argument>
+            <argument /> <!-- console path, filled by extension //-->
             <tag name="console.command" />
         </service>
 
