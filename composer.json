@@ -11,9 +11,7 @@
         "swarrot/swarrot": "^2.0",
 
         "symfony/console": "^3.0",
-        "symfony/process": "^3.0",
-        "symfony/filesystem": "^3.0",
-        "symfony/templating": "^3.0"
+        "symfony/process": "^3.0"
     },
 
     "require-dev": {
@@ -29,7 +27,7 @@
     "authors": [
         {
             "name": "Baptiste Clavié",
-            "email": "baptiste@wisembly.com"
+            "email": "clavie.b@gmail.com"
         },
 
         {
