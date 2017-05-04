@@ -17,10 +17,6 @@ class BrokerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
-        if ($container->has('wisembly.amqp.broker')) {
-            return;
-        }
-
         $brokers = [];
 
         foreach ($container->findTaggedServiceIds('wisembly.amqp.broker') as $id => $tag) {
@@ -36,4 +32,3 @@ class BrokerPass implements CompilerPassInterface
         $container->setAlias('wisembly.amqp.broker', $brokers[$broker]);
     }
 }
-

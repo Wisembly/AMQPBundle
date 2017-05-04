@@ -32,6 +32,7 @@ class WisemblyAmqpExtension extends Extension
         $this->registerGates($container, $loader, $config);
         $this->registerCommands($container, $loader, $config);
 
+        $loader->load('brokers.xml');
         $container->getParameterBag()->set('wisembly.amqp.broker', $config['broker']);
     }
 
