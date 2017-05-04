@@ -31,6 +31,8 @@ class PublishCommand extends Command
     {
         $this->gates = $gates;
         $this->publisher = $publisher;
+
+        parent::__construct();
     }
 
     protected function configure()

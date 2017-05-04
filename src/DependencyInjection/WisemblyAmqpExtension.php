@@ -58,7 +58,7 @@ class WisemblyAmqpExtension extends Extension
             $container->setParameter('wisembly.amqp.' . $key, $value);
         }
 
-        $container->setParameter('wisembly.amqp.console__path', $configuration['console_path']);
+        $container->setParameter('wisembly.amqp.console_path', $configuration['console_path']);
 
         $loader->load('rabbitmq.xml');
     }
