@@ -14,7 +14,7 @@ class WisemblyAmqpBundle extends Bundle
     {
         parent::build($container);
 
-        $container->addCompilerPass(new BrokerPass, PassConfig::TYPE_OPTIMIZE);
+        $container->addCompilerPass(new BrokerPass);
     }
 }
 
