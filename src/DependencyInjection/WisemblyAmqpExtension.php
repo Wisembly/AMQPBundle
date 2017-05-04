@@ -27,6 +27,8 @@ class WisemblyAmqpExtension extends Extension
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $this->loadAmqpConfiguration($container, $loader, $config);
+
+        $loader->load('commands.xml');
     }
 
     private function loadAmqpConfiguration(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
@@ -55,6 +57,8 @@ class WisemblyAmqpExtension extends Extension
         foreach ($configuration as $key => $value) {
             $container->setParameter('wisembly.amqp.' . $key, $value);
         }
+
+        $container->setParameter('wisembly.amqp.console__path', $configuration['console_path']);
 
         $loader->load('rabbitmq.xml');
     }

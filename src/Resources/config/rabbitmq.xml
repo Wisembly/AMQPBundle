@@ -30,4 +30,3 @@
         <service id="wisembly.amqp.gates" class="Wisembly\AmqpBundle\GatesBag" />
     </services>
 </container>
-
