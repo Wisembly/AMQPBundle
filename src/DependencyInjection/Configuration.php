@@ -57,7 +57,7 @@ class Configuration implements ConfigurationInterface
                             ->integerNode('port')->isRequired()->end()
                             ->scalarNode('login')->isRequired()->end()
                             ->scalarNode('password')->defaultNull()->end()
-                            ->scalarNode('vhost')->defaultValue('/')->end()
+                            ->scalarNode('vhost')->defaultNull()->end()
                         ->end()
                     ->end()
                 ->end()
