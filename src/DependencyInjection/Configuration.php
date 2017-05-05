@@ -56,6 +56,8 @@ class Configuration implements ConfigurationInterface
                         ->beforeNormalization()
                             ->ifString()
                             ->then(function ($v) {
+                                // https://www.rabbitmq.com/uri-spec.html
+                                // NOTE : amqp(s):// only are not supported yet
                                 if (false === $parse = parse_url($v)) {
                                     throw new InvalidArgumentException('Could not parse uri');
                                 }
@@ -68,8 +70,8 @@ class Configuration implements ConfigurationInterface
                                     throw new InvalidArgumentException(sprintf('Invalid scheme. Expected "amqp(s)", had "%s"', $parse['scheme']));
                                 }
 
-                                if (!isset($parse['host'])) {
-                                    throw new InvalidArgumentException('Missing host');
+                                if (isset($parse['path'], $parse['path'][0]) && '/' === $parse['path'][0]) {
+                                    $parse['path'] = substr($parse['path'], 1);
                                 }
 
                                 return [
