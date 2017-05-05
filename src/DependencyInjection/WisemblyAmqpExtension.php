@@ -65,11 +65,11 @@ class WisemblyAmqpExtension extends Extension
             $connections[$name]
                 ->addArgument($name)
                 ->addArgument($connection['host'])
-                ->addArgument($connection['port'])
-                ->addArgument($connection['login'])
-                ->addArgument($connection['password'])
-                ->addArgument($connection['vhost'])
-                ->addArgument($connection['query'])
+                ->addArgument($connection['port'] ?? null)
+                ->addArgument($connection['login'] ?? null)
+                ->addArgument($connection['password'] ?? null)
+                ->addArgument($connection['vhost'] ?? null)
+                ->addArgument($connection['query'] ?? null)
             ;
         }
 
