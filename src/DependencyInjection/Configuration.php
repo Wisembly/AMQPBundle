@@ -1,6 +1,7 @@
 <?php
-
 namespace Wisembly\AmqpBundle\DependencyInjection;
+
+use InvalidArgumentException;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
@@ -52,6 +53,35 @@ class Configuration implements ConfigurationInterface
                     ->isRequired()
                     ->requiresAtLeastOneElement()
                     ->prototype('array')
+                        ->beforeNormalization()
+                            ->ifString()
+                            ->then(function ($v) {
+                                if (false === $parse = parse_url($v)) {
+                                    throw new InvalidArgumentException('Could not parse uri');
+                                }
+
+                                if (!isset($parse['scheme'])) {
+                                    throw new InvalidArgumentException('Missing scheme.');
+                                }
+
+                                if (!in_array(strtolower($parse['scheme']), ['amqp', 'amqps'])) {
+                                    throw new InvalidArgumentException(sprintf('Invalid scheme. Expected "amqp(s)", had "%s"', $parse['scheme']));
+                                }
+
+                                if (!isset($parse['host'])) {
+                                    throw new InvalidArgumentException('Missing host');
+                                }
+
+                                return [
+                                    'host' => $parse['host'],
+                                    'port' => $parse['port'] ?? null,
+                                    'login' => $parse['user'] ?? null,
+                                    'password' => $parse['pass'] ?? null,
+                                    'vhost' => $parse['path'] ?? null,
+                                    'query' => $parse['query'] ?? null
+                                ];
+                            })
+                        ->end()
                         ->children()
                             ->scalarNode('host')->isRequired()->end()
 
