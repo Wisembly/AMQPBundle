@@ -60,7 +60,17 @@ class WisemblyAmqpExtension extends Extension
         $connections = [];
 
         foreach ($configuration['connections'] as $name => $connection) {
-            $connections[$name] = new Definition(Connection::class, [$name, $connection['host'], $connection['port'], $connection['login'], $connection['password'], $connection['vhost']]);
+            $connections[$name] = new Definition(Connection::class);
+
+            $connections[$name]
+                ->addArgument($name)
+                ->addArgument($connection['host'])
+                ->addArgument($connection['port'] ?? null)
+                ->addArgument($connection['login'] ?? null)
+                ->addArgument($connection['password'] ?? null)
+                ->addArgument($connection['vhost'] ?? null)
+                ->addArgument($connection['query'] ?? null)
+            ;
         }
 
         $bagDefinition = $container->getDefinition('wisembly.amqp.gates');

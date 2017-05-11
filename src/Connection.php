@@ -26,7 +26,10 @@ class Connection
     /** @var string */
     private $vhost;
 
-    public function __construct($name, $host, $port, $login, $password, $vhost)
+    /** @var string */
+    private $query;
+
+    public function __construct($name, $host, $port, $login, $password, $vhost, $query)
     {
         $this->name = $name;
         $this->host = $host;
@@ -34,6 +37,7 @@ class Connection
         $this->login = $login;
         $this->password = $password;
         $this->vhost = $vhost;
+        $this->query = $query;
     }
 
     /** @return string */
@@ -71,5 +75,9 @@ class Connection
     {
         return $this->vhost;
     }
-}
 
+    public function getQuery()
+    {
+        return $this->query;
+    }
+}
