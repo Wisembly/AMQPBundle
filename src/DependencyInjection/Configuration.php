@@ -88,7 +88,7 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('host')->isRequired()->end()
 
                             ->integerNode('port')
-                                ->defaultNull
+                                ->defaultNull()
                                 ->beforeNormalization()
                                     ->ifEmpty()
                                     ->thenUnset()
