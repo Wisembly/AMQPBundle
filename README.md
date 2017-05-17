@@ -4,7 +4,7 @@ This bundle integrates Swarrot into Symfony2, with another approach from the
 [SwarrotBundle](http://github.com/swarrot/SwarrotBundle). Currently in early
 stages of development... and opensourcing.
 
-But, unlike the SwarrotBundle, this bundle does not allow you (yet ?) to
+But, unlike the SwarrotBundle, this bundle does not allow you (...yet ?) to
 configure multiple consumers, and force you to use the `CommandProcessor`
 approach (Every message should be treated in the `CommandProcessor`, which will
 be treated through a Symfony `Process`.
@@ -96,6 +96,18 @@ wisembly_amqp:
 
 Usage
 -----
+### Concept of "Gates"
+This concept is the whole difference with the Swarrot Bundle : Gates. It is a
+simple value object containing information on the queue / exchange to use for
+your actions (which connection to use, which queue it should target, which
+exchange should be used, which routing key, ... and configuration for these,
+such as should the exchange / queue be declared if not existent, and so on).
+
+Refer to the configuration reference for more information on what is possible
+to configure for a "gate". Once you have at least one, you can consume from one,
+or publish to one. For that, see below.
+
+
 ### Publishing a Message
 You may publish a new message to a gate (access point). For that, you should
 retrieve the services `wisembly.amqp.gates` to fetch the right gate, and then
@@ -105,11 +117,8 @@ understood by the `CommandProcessor` :
 ```php
 use Swarrot\Broker\Message;
 
-$gate = $this->get('wisembly.amqp.gates.my_gate');
-
-// or you can fetch the bag of gates :
-// $gates = $this->get('wisembly.amqp.gates');
-// $gate = $gates->get('my_gate');
+$gates = $this->get('wisembly.amqp.gates');
+$gate = $gates['my_gate'];
 
 $publisher = $this->get('wisembly.amqp.publisher);
 
