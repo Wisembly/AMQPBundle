@@ -75,7 +75,7 @@ class WisemblyAmqpExtension extends Extension
 
         $bagDefinition = $container->getDefinition('wisembly.amqp.gates');
 
-        foreach ($configuration['gates'] as $gate) {
+        foreach ($configuration['gates'] as $name => $gate) {
             if (null === $gate['connection']) {
                 $gate['connection'] = $configuration['default_connection'];
             }
