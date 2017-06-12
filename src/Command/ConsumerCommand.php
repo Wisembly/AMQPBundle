@@ -97,17 +97,17 @@ class ConsumerCommand extends Command
 
         // if we want a rpc mechanism, let's wrap a rpc server processor
         if (true === $input->getOption('rpc')) {
-            $processor = new RpcServerProcessor($processor, $producer, $logger);
+            $processor = new RpcServerProcessor($processor, $producer, $this->logger);
         }
 
-        $processor = new ExceptionCatcherProcessor($processor, $logger);
+        $processor = new ExceptionCatcherProcessor($processor, $this->logger);
         $options = [];
 
-        $processor = new SignalHandlerProcessor($processor, $logger);
+        $processor = new SignalHandlerProcessor($processor, $this->logger);
 
         // we apply a memory limit to the consumer
         if (null !== $input->getOption('memory-limit')) {
-            $processor = new MemoryLimitProcessor($processor, $logger);
+            $processor = new MemoryLimitProcessor($processor, $this->logger);
             $options['memory_limit'] = (int) $input->getOption('memory-limit');
         }
 
