@@ -64,8 +64,10 @@ class CommandProcessor implements ProcessorInterface
         }
 
         // add environment
-        $body['arguments'][] = '--env';
-        $body['arguments'][] = $this->environment;
+        if (null !== $this->environment) {
+            $body['arguments'][] = '--env';
+            $body['arguments'][] = $this->environment;
+        }
 
         // add verbosity
         switch ($this->verbosity) {

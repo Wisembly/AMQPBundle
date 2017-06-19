@@ -69,12 +69,6 @@ class ConsumerCommand extends Command
              ->addOption('disable-verbosity-propagation', null, InputOption::VALUE_NONE, 'Do not spread the verbosity to the child command')
              ->addOption('poll-interval', null, InputOption::VALUE_REQUIRED, 'poll interval, in micro-seconds', 50000)
              ->addOption('memory-limit', null, InputOption::VALUE_REQUIRED, 'memory limit use by the consumer, in MB');
-
-        try {
-            $this->addOption('env', null, InputOption::VALUE_REQUIRED, 'which environment to use ?', 'dev');
-        } catch (LogicException $e) {
-            // option already exists, skip adding it
-        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -91,7 +85,7 @@ class ConsumerCommand extends Command
             $provider,
             $producer,
             $this->consolePath,
-            $input->getOption('env'),
+            $input->hasOption('env') ? $input->getOption('env') : null,
             true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity()
         );
 
