@@ -133,7 +133,7 @@ class PeclBroker implements BrokerInterface
 
         $queue->bind(
             $gate->getExchange(),
-            $queue->getRoutingKey() ?: '',
+            $gate->getRoutingKey() ?: '',
             [] // arguments
         );
     }
