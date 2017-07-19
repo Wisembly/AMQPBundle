@@ -99,16 +99,16 @@ class PeclBroker implements BrokerInterface
 
         $flags = 0;
         if ($options['durable'] ?? false) {
-            $flags &= \AMQP_DURABLE;
+            $flags |= \AMQP_DURABLE;
         }
         if ($options['passive'] ?? false) {
-            $flags &= \AMQP_PASSIVE;
+            $flags |= \AMQP_PASSIVE;
         }
         if ($options['exclusive'] ?? false) {
-            $flags &= \AMQP_EXCLUSIVE;
+            $flags |= \AMQP_EXCLUSIVE;
         }
         if ($options['auto-delete'] ?? false) {
-            $flags &= \AMQP_AUTODELETE;
+            $flags |= \AMQP_AUTODELETE;
         }
 
         $queue->setFlags($flags);
