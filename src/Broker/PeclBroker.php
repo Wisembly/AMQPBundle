@@ -121,15 +121,16 @@ class PeclBroker implements BrokerInterface
 
         $flags = 0;
         if ($options['durable'] ?? false) {
-            $flags &= \AMQP_DURABLE;
+            $flags |= \AMQP_DURABLE;
         }
         if ($options['passive'] ?? false) {
-            $flags &= \AMQP_PASSIVE;
+            $flags |= \AMQP_PASSIVE;
         }
 
         $exchange->setFlags($flags);
         $exchange->setArguments($options['arguments'] ?? []);
         $exchange->setType(self::TYPES[$options['type'] ?? 'direct'] ?? 'direct');
+        $exchange->declareExchange();
 
         $queue->bind(
             $gate->getExchange(),
