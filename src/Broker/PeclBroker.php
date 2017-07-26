@@ -130,6 +130,7 @@ class PeclBroker implements BrokerInterface
         $exchange->setFlags($flags);
         $exchange->setArguments($options['arguments'] ?? []);
         $exchange->setType(self::TYPES[$options['type'] ?? 'direct'] ?? 'direct');
+        $exchange->declareExchange();
 
         $queue->bind(
             $gate->getExchange(),
