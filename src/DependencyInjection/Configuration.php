@@ -56,36 +56,27 @@ class Configuration implements ConfigurationInterface
                         ->beforeNormalization()
                             ->ifString()
                             ->then(function ($v) {
-                                // https://www.rabbitmq.com/uri-spec.html
-                                // NOTE : amqp(s):// only are not supported yet
-                                if (false === $parse = parse_url($v)) {
-                                    throw new InvalidArgumentException('Could not parse uri');
-                                }
-
-                                if (!isset($parse['scheme'])) {
-                                    throw new InvalidArgumentException('Missing scheme.');
-                                }
-
-                                if (!in_array(strtolower($parse['scheme']), ['amqp', 'amqps'])) {
-                                    throw new InvalidArgumentException(sprintf('Invalid scheme. Expected "amqp(s)", had "%s"', $parse['scheme']));
-                                }
-
-                                if (isset($parse['path'], $parse['path'][0]) && '/' === $parse['path'][0]) {
-                                    $parse['path'] = substr($parse['path'], 1);
-                                }
-
                                 return [
-                                    'host' => $parse['host'],
-                                    'port' => $parse['port'] ?? null,
-                                    'login' => $parse['user'] ?? null,
-                                    'password' => $parse['pass'] ?? null,
-                                    'vhost' => $parse['path'] ?? null,
-                                    'query' => $parse['query'] ?? null
+                                    'uri' => $v
                                 ];
                             })
                         ->end()
                         ->children()
-                            ->scalarNode('host')->isRequired()->end()
+                            ->scalarNode('uri')
+                                ->defaultNull()
+                                ->beforeNormalization()
+                                    ->ifEmpty()
+                                    ->thenUnset()
+                                ->end()
+                            ->end()
+
+                            ->scalarNode('host')
+                                ->defaultNull()
+                                ->beforeNormalization()
+                                    ->ifEmpty()
+                                    ->thenUnset()
+                                ->end()
+                            ->end()
 
                             ->integerNode('port')
                                 ->defaultNull()
