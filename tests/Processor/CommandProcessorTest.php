@@ -3,6 +3,7 @@ namespace Wisembly\AmqpBundle\Processor;
 
 use PHPUnit\Framework\TestCase;
 
+use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -20,10 +21,10 @@ class CommandProcessorTest extends TestCase
 {
     public function testItIsInitializable()
     {
-        $processor = new CommandProcessor($this->getMock(LoggerInterface::class),
-                                          $this->getMock(ProcessBuilder::class),
-                                          $this->getMock(MessageProviderInterface::class),
-                                          $this->getMock(MessagePublisherInterface::class),
+        $processor = new CommandProcessor($this->createMock(LoggerInterface::class),
+                                          $this->createMock(ProcessBuilder::class),
+                                          $this->createMock(MessageProviderInterface::class),
+                                          $this->createMock(MessagePublisherInterface::class),
                                           'path/to/command',
                                           'dev');
 
@@ -38,8 +39,8 @@ class CommandProcessorTest extends TestCase
 
         $message = new Message(json_encode($body), ['wisembly_attempts' => CommandProcessor::MAX_ATTEMPTS]);
 
-        $logger   = $this->getMock(LoggerInterface::class);
-        $provider = $this->getMock(MessageProviderInterface::class);
+        $logger   = $this->createMock(LoggerInterface::class);
+        $provider = $this->createMock(MessageProviderInterface::class);
 
         $logger->expects(static::exactly(2))
                ->method('info')
@@ -61,7 +62,7 @@ class CommandProcessorTest extends TestCase
         $processor = new CommandProcessor($logger,
                                           $this->getProcessBuilderMock(true, $modifiedBody['arguments']),
                                           $provider,
-                                          $this->getMock(MessagePublisherInterface::class),
+                                          $this->createMock(MessagePublisherInterface::class),
                                           'path/to/command',
                                           'dev'
         );
@@ -76,8 +77,8 @@ class CommandProcessorTest extends TestCase
 
         $message = new Message(json_encode($body), ['wisembly_attempts' => CommandProcessor::MAX_ATTEMPTS]);
 
-        $logger   = $this->getMock(LoggerInterface::class);
-        $provider = $this->getMock(MessageProviderInterface::class);
+        $logger   = $this->createMock(LoggerInterface::class);
+        $provider = $this->createMock(MessageProviderInterface::class);
 
         $logger->expects(static::once())
                ->method('info')
@@ -100,7 +101,7 @@ class CommandProcessorTest extends TestCase
         $processor = new CommandProcessor($logger,
                                           $this->getProcessBuilderMock(false, $modifiedBody['arguments']),
                                           $provider,
-                                          $this->getMock(MessagePublisherInterface::class),
+                                          $this->createMock(MessagePublisherInterface::class),
                                           'path/to/command',
                                           'prod');
 
@@ -114,9 +115,9 @@ class CommandProcessorTest extends TestCase
 
         $message = new Message(json_encode($body));
 
-        $logger    = $this->getMock(LoggerInterface::class);
-        $provider  = $this->getMock(MessageProviderInterface::class);
-        $publisher = $this->getMock(MessagePublisherInterface::class);
+        $logger    = $this->createMock(LoggerInterface::class);
+        $provider  = $this->createMock(MessageProviderInterface::class);
+        $publisher = $this->createMock(MessagePublisherInterface::class);
 
         $logger->expects(static::once())
                ->method('info')
@@ -153,8 +154,8 @@ class CommandProcessorTest extends TestCase
 
     private function getProcessBuilderMock($success = true, array $arguments = [])
     {
-        $process  = $this->getMock(Process::class, ['run', 'isSuccessful', 'getExitCode', 'getErrorOutput'], [], '', false);
-        $builder  = $this->getMock(ProcessBuilder::class, ['setPrefix', 'setArguments', 'getProcess'], [], '', false);
+        $process = $this->createPartialMock(Process::class, ['run', 'isSuccessful', 'getExitCode', 'getErrorOutput']);
+        $builder = $this->createPartialMock(ProcessBuilder::class, ['setPrefix', 'setArguments', 'getProcess']);
 
         $process->expects(static::once())
                 ->method('run')
