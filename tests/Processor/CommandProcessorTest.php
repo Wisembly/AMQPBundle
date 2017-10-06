@@ -1,7 +1,7 @@
 <?php
 namespace Wisembly\AmqpBundle\Processor;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 use Symfony\Component\Process\ProcessBuilder;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,7 +16,7 @@ use Swarrot\Processor\ProcessorInterface;
 
 use Wisembly\AmqpBundle\Processor\CommandProcessor;
 
-class CommandProcessorTest extends PHPUnit_Framework_TestCase
+class CommandProcessorTest extends TestCase
 {
     public function testItIsInitializable()
     {
