@@ -38,7 +38,13 @@
 
     "autoload": {
         "psr-4": {
-            "Wisembly\\AmqpBundle\\": ["src", "tests"]
+            "Wisembly\\AmqpBundle\\": "src"
+        }
+    },
+
+    "autoload-dev": {
+        "psr-4": {
+            "Wisembly\\AmqpBundle\\": "tests"
         }
     }
 }
