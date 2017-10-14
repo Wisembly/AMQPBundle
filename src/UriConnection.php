@@ -18,11 +18,11 @@ class UriConnection extends Connection
         parent::__construct(
             $name,
             $parse['host'],
-            $parse['port'] ?? null,
-            $parse['login'] ?? null,
-            $parse['password'] ?? null,
-            $parse['vhost'] ?? null,
-            $parse['query'] ?? null
+            $parse['port'],
+            $parse['login'],
+            $parse['password'],
+            $parse['vhost'],
+            $parse['query']
         );
     }
 
