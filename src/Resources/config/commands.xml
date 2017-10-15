@@ -6,6 +6,7 @@
 
     <services>
         <service id="wisembly.amqp.command.consumer" class="Wisembly\AmqpBundle\Command\ConsumerCommand">
+            <tag name="monolog.logger" channel="amqp" />
             <argument type="service" id="logger" on-invalid="null" />
             <argument type="service" id="wisembly.amqp.broker" />
             <argument type="service" id="wisembly.amqp.gates" />
