@@ -13,6 +13,7 @@ final class MessagingException extends BC
         parent::__construct('There was an error while trying to use the Messaging service', $e->getCode(), $e);
     }
 
+    /** @deprecated Use $e->getPrevious()->getMessage() instead... */
     public function getMessagingExceptionMessage()
     {
         return $this->getPrevious()->getMessage();
