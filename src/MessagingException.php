@@ -2,21 +2,19 @@
 namespace Wisembly\AmqpBundle;
 
 use Exception;
-use RuntimeException;
+//use RuntimeException; // to uncomment when bc is gone
 
-class MessagingException extends RuntimeException
+use Wisembly\AmqpBundle\Exception\MessagingException as BC;
+
+final class MessagingException extends BC
 {
-    private $messagingException;
-
     public function __construct(Exception $e)
     {
-        $this->messagingException = $e;
-
         parent::__construct('There was an error while trying to use the Messaging service', $e->getCode(), $e);
     }
 
     public function getMessagingExceptionMessage()
     {
-        return $this->messagingException->getMessage();
+        return $this->getPrevious()->getMessage();
     }
 }
