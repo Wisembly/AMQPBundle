@@ -16,7 +16,7 @@ use Swarrot\Broker\MessagePublisher\PhpAmqpLibMessagePublisher;
 use Wisembly\AmqpBundle\Gate;
 use Wisembly\AmqpBundle\Connection;
 use Wisembly\AmqpBundle\BrokerInterface;
-use Wisembly\AmqpBundle\Exception\MessagingException;
+use Wisembly\AmqpBundle\MessagingException;
 
 class OldsoundBroker implements BrokerInterface
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Wisembly\AmqpBundle\Exception;
+namespace Wisembly\AmqpBundle;
 
 use Exception;
 use RuntimeException;
@@ -20,4 +20,3 @@ class MessagingException extends RuntimeException
         return $this->messagingException->getMessage();
     }
 }
-

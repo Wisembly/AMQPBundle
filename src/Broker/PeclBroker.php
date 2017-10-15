@@ -19,7 +19,7 @@ use Swarrot\Broker\MessagePublisher\PeclPackageMessagePublisher;
 use Wisembly\AmqpBundle\Gate;
 use Wisembly\AmqpBundle\Connection;
 use Wisembly\AmqpBundle\BrokerInterface;
-use Wisembly\AmqpBundle\Exception\MessagingException;
+use Wisembly\AmqpBundle\MessagingException;
 
 class PeclBroker implements BrokerInterface
 {
