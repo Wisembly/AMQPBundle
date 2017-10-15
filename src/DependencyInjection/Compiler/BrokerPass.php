@@ -19,8 +19,14 @@ class BrokerPass implements CompilerPassInterface
     {
         $brokers = [];
 
-        foreach ($container->findTaggedServiceIds('wisembly.amqp.broker') as $id => $tag) {
-            $brokers[isset($tag[0]['alias']) ? $tag[0]['alias'] : $id] = $id;
+        foreach ($container->findTaggedServiceIds('wisembly.amqp.broker') as $id => $tags) {
+            $brokers[$id] = $id;
+
+            foreach ($tags as $tag) {
+                if (isset($tag['alias'])) {
+                    $brokers[$tag['alias']] = &$brokers[$id];
+                }
+            }
         }
 
         $broker = $container->getParameter('wisembly.amqp.broker');

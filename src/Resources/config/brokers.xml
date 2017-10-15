@@ -11,6 +11,7 @@
 
         <service id="wisembly.amqp.broker.oldsound" class="Wisembly\AmqpBundle\Broker\OldsoundBroker">
             <tag name="wisembly.amqp.broker" alias="oldsound" />
+            <tag name="wisembly.amqp.broker" alias="php-amqplib" />
         </service>
 
         <service id="wisembly.amqp.broker" alias="wisembly.amqp.broker.oldsound" />

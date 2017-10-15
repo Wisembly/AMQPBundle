@@ -159,8 +159,8 @@ runned. The output will then be retrieved and printed on the consumer's output.
 Two brokers are built-in :
 
 - the `pecl` ([php amqp extension](https://pecl.php.net/package/amqp)) ;
-- [`oldsound`](https://github.com/videlalvaro/php-amqplib), which is the one
-  implemented in full PHP by @videlalvaro
+- [`php-amqplib`](https://github.com/php-amqplib/php-amqplib), which is the one
+  implemented in full PHP
 
 The recommended broker is to use if available the `pecl` broker.
 
