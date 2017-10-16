@@ -5,19 +5,25 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="wisembly.amqp.command.consumer" class="Wisembly\AmqpBundle\Command\ConsumerCommand">
-            <tag name="monolog.logger" channel="amqp" />
+        <service id="Wisembly\AmqpBundle\Command\ConsumerCommand">
             <argument type="service" id="logger" on-invalid="null" />
-            <argument type="service" id="wisembly.amqp.broker" />
-            <argument type="service" id="wisembly.amqp.gates" />
+            <argument type="service" id="Wisembly\AmqpBundle\BrokerInterface" />
+            <argument type="service" id="Wisembly\AmqpBundle\GatesBag" />
             <argument /> <!-- console path, filled by extension //-->
+
+            <tag name="console.command" />
+            <tag name="monolog.logger" channel="amqp" />
+        </service>
+
+        <service id="Wisembly\AmqpBundle\Command\PublishCommand">
+            <argument type="service" id="Wisembly\AmqpBundle\Publisher" />
+            <argument type="service" id="Wisembly\AmqpBundle\GatesBag" />
+
             <tag name="console.command" />
         </service>
 
-        <service id="wisembly.amqp.command.publisher" class="Wisembly\AmqpBundle\Command\PublishCommand">
-            <argument type="service" id="wisembly.amqp.publisher" />
-            <argument type="service" id="wisembly.amqp.gates" />
-            <tag name="console.command" />
-        </service>
+        <!-- BC //-->
+        <service id="wisembly.amqp.command.consumer" alias="Wisembly\AmqpBundle\Command\ConsumerCommand" />
+        <service id="wisembly.amqp.command.publisher" alias="Wisembly\AmqpBundle\Command\PublishCommand" />
     </services>
 </container>

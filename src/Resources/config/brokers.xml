@@ -5,15 +5,20 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="wisembly.amqp.broker.pecl" class="Wisembly\AmqpBundle\Broker\PeclBroker">
+        <service id="Wisembly\AmqpBundle\Broker\PeclBroker">
             <tag name="wisembly.amqp.broker" alias="pecl" />
         </service>
 
-        <service id="wisembly.amqp.broker.oldsound" class="Wisembly\AmqpBundle\Broker\OldsoundBroker">
+        <service id="Wisembly\AmqpBundle\Broker\OldsoundBroker">
             <tag name="wisembly.amqp.broker" alias="oldsound" />
             <tag name="wisembly.amqp.broker" alias="php-amqplib" />
         </service>
 
-        <service id="wisembly.amqp.broker" alias="wisembly.amqp.broker.oldsound" />
+        <service id="Wisembly\AmqpBundle\BrokerInterface" alias="Wisembly\AmqpBundle\Broker\OldsoundBroker" />
+
+        <!-- BC //-->
+        <service id="wisembly.amqp.broker" alias="Wisembly\AmqpBundle\BrokerInterface" />
+        <service id="wisembly.amqp.broker.pecl" alias="Wisembly\AmqpBundle\Broker\PeclBroker" />
+        <service id="wisembly.amqp.broker.oldsound" alias="Wisembly\AmqpBundle\Broker\OldsoundBroker" />
     </services>
 </container>

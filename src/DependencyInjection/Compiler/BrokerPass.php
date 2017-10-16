@@ -8,6 +8,8 @@ use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
+use Wisembly\AmqpBundle\BrokerInterface;
+
 /**
  * Determine and instanciate which RabbitMq Broker to use
  *
@@ -35,6 +37,6 @@ class BrokerPass implements CompilerPassInterface
             throw new InvalidArgumentException(sprintf('Invalid broker "%s". Expected one of those : [%s]', $broker, implode(', ', array_keys($brokers))));
         }
 
-        $container->setAlias('wisembly.amqp.broker', $brokers[$broker]);
+        $container->setAlias(BrokerInterface::class, $brokers[$broker]);
     }
 }

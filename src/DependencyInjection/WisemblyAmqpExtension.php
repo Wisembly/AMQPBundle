@@ -1,5 +1,4 @@
 <?php
-
 namespace Wisembly\AmqpBundle\DependencyInjection;
 
 use InvalidArgumentException;
@@ -12,6 +11,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 use Wisembly\AmqpBundle\Gate;
+use Wisembly\AmqpBundle\GatesBag;
 use Wisembly\AmqpBundle\Connection;
 use Wisembly\AmqpBundle\UriConnection;
 
@@ -91,7 +91,7 @@ class WisemblyAmqpExtension extends Extension
             ;
         }
 
-        $bagDefinition = $container->getDefinition('wisembly.amqp.gates');
+        $bagDefinition = $container->getDefinition(GatesBag::class);
 
         foreach ($configuration['gates'] as $name => $gate) {
             if (null === $gate['connection']) {
