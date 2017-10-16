@@ -5,6 +5,8 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <defaults public="false" />
+
         <service id="Wisembly\AmqpBundle\Broker\PeclBroker">
             <tag name="wisembly.amqp.broker" alias="pecl" />
         </service>
@@ -18,7 +20,5 @@
 
         <!-- BC //-->
         <service id="wisembly.amqp.broker" alias="Wisembly\AmqpBundle\BrokerInterface" />
-        <service id="wisembly.amqp.broker.pecl" alias="Wisembly\AmqpBundle\Broker\PeclBroker" />
-        <service id="wisembly.amqp.broker.oldsound" alias="Wisembly\AmqpBundle\Broker\OldsoundBroker" />
     </services>
 </container>
