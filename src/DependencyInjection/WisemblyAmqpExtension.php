@@ -125,8 +125,6 @@ class WisemblyAmqpExtension extends Extension
     {
         $loader->load('commands.xml');
 
-        $parameterBag = $container->getParameterBag();
-
         $definition = $container->getDefinition('wisembly.amqp.command.consumer');
         $definition->replaceArgument(3, $configuration['console_path']);
     }
