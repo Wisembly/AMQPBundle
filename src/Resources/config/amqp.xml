@@ -5,9 +5,9 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <defaults public="true" />
+        <defaults public="false" />
 
-        <service id="Wisembly\AmqpBundle\Publisher">
+        <service id="Wisembly\AmqpBundle\Publisher" public="true">
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Wisembly\AmqpBundle\BrokerInterface" />
         </service>
@@ -15,7 +15,7 @@
         <service id="Wisembly\AmqpBundle\GatesBag" />
 
         <!-- BC //-->
-        <service id="wisembly.amqp.publisher" alias="Wisembly\AmqpBundle\Publisher" />
-        <service id="wisembly.amqp.gates" alias="Wisembly\AmqpBundle\GatesBag" />
+        <service id="wisembly.amqp.publisher" alias="Wisembly\AmqpBundle\Publisher" public="true" />
+        <service id="wisembly.amqp.gates" alias="Wisembly\AmqpBundle\GatesBag" public="true" />
     </services>
 </container>
