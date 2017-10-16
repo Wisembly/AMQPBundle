@@ -11,12 +11,12 @@
             <tag name="wisembly.amqp.broker" alias="pecl" />
         </service>
 
-        <service id="Wisembly\AmqpBundle\Broker\OldsoundBroker">
+        <service id="Wisembly\AmqpBundle\Broker\PhpAmqpLibBroker">
             <tag name="wisembly.amqp.broker" alias="oldsound" />
             <tag name="wisembly.amqp.broker" alias="php-amqplib" />
         </service>
 
-        <service id="Wisembly\AmqpBundle\BrokerInterface" alias="Wisembly\AmqpBundle\Broker\OldsoundBroker" />
+        <service id="Wisembly\AmqpBundle\BrokerInterface" alias="Wisembly\AmqpBundle\Broker\PhpAmqpLibBroker" />
 
         <!-- BC //-->
         <service id="wisembly.amqp.broker" alias="Wisembly\AmqpBundle\BrokerInterface" />
