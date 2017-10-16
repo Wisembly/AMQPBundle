@@ -12,8 +12,11 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 use Wisembly\AmqpBundle\Gate;
 use Wisembly\AmqpBundle\GatesBag;
+
 use Wisembly\AmqpBundle\Connection;
 use Wisembly\AmqpBundle\UriConnection;
+
+use Wisembly\AmqpBundle\BrokerInterface;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -39,6 +42,10 @@ class WisemblyAmqpExtension extends Extension
         $container->getParameterBag()->set('wisembly.amqp.broker', $config['broker']);
 
         $loader->load('profiler.xml');
+
+        $container->registerForAutoconfiguration(BrokerInterface::class)
+            ->addTag('wisembly.amqp.broker')
+        ;
     }
 
     private function registerGates(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
