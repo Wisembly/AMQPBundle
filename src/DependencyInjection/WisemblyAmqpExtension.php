@@ -17,6 +17,7 @@ use Wisembly\AmqpBundle\Connection;
 use Wisembly\AmqpBundle\UriConnection;
 
 use Wisembly\AmqpBundle\BrokerInterface;
+use Wisembly\AmqpBundle\Command\ConsumerCommand;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -125,7 +126,7 @@ class WisemblyAmqpExtension extends Extension
     {
         $loader->load('commands.xml');
 
-        $definition = $container->getDefinition('wisembly.amqp.command.consumer');
-        $definition->replaceArgument(3, $configuration['console_path']);
+        $definition = $container->getDefinition(ConsumerCommand::class);
+        $definition->replaceArgument('$consolePath', $configuration['console_path']);
     }
 }
