@@ -110,17 +110,20 @@ or publish to one. For that, see below.
 
 ### Publishing a Message
 You may publish a new message to a gate (access point). For that, you should
-retrieve the services `wisembly.amqp.gates` to fetch the right gate, and then
-use the `wisembly.amqp.publisher` service to publish a message that can be
-understood by the `CommandProcessor` :
+retrieve the services `Wisembly\AmqpBundle\GatesBag` to fetch the right gate,
+and then use the `Wisembly\AmqpBundle\Publisher` service to publish a message
+that can be understood by the `CommandProcessor` :
 
 ```php
 use Swarrot\Broker\Message;
 
-$gates = $this->get('wisembly.amqp.gates');
-$gate = $gates['my_gate'];
+use Wisembly\AmqpBundle\GatesBag;
+use Wisembly\AmqpBundle\Publisher;
 
-$publisher = $this->get('wisembly.amqp.publisher);
+// let's say $gates contains the GatesBag service, and
+// $publisher contains the Publisher service
+
+$gate = $gates['my_gate'];
 
 $message = new Message(json_encode([
     'command' => 'symfony:command:to:run',
@@ -159,8 +162,8 @@ runned. The output will then be retrieved and printed on the consumer's output.
 Two brokers are built-in :
 
 - the `pecl` ([php amqp extension](https://pecl.php.net/package/amqp)) ;
-- [`oldsound`](https://github.com/videlalvaro/php-amqplib), which is the one
-  implemented in full PHP by @videlalvaro
+- [`php-amqplib`](https://github.com/php-amqplib/php-amqplib), which is the one
+  implemented in full PHP
 
 The recommended broker is to use if available the `pecl` broker.
 

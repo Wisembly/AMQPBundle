@@ -1,5 +1,4 @@
 <?php
-
 namespace Wisembly\AmqpBundle\DependencyInjection;
 
 use InvalidArgumentException;
@@ -12,8 +11,13 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 use Wisembly\AmqpBundle\Gate;
+use Wisembly\AmqpBundle\GatesBag;
+
 use Wisembly\AmqpBundle\Connection;
 use Wisembly\AmqpBundle\UriConnection;
+
+use Wisembly\AmqpBundle\BrokerInterface;
+use Wisembly\AmqpBundle\Command\ConsumerCommand;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -32,13 +36,17 @@ class WisemblyAmqpExtension extends Extension
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
+        $container->getParameterBag()->set('wisembly.amqp.broker', $config['broker']);
+
         $this->registerGates($container, $loader, $config);
         $this->registerCommands($container, $loader, $config);
 
         $loader->load('brokers.xml');
-        $container->getParameterBag()->set('wisembly.amqp.broker', $config['broker']);
-
         $loader->load('profiler.xml');
+
+        $container->registerForAutoconfiguration(BrokerInterface::class)
+            ->addTag('wisembly.amqp.broker')
+        ;
     }
 
     private function registerGates(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
@@ -91,7 +99,7 @@ class WisemblyAmqpExtension extends Extension
             ;
         }
 
-        $bagDefinition = $container->getDefinition('wisembly.amqp.gates');
+        $bagDefinition = $container->getDefinition(GatesBag::class);
 
         foreach ($configuration['gates'] as $name => $gate) {
             if (null === $gate['connection']) {
@@ -118,9 +126,7 @@ class WisemblyAmqpExtension extends Extension
     {
         $loader->load('commands.xml');
 
-        $parameterBag = $container->getParameterBag();
-
-        $definition = $container->getDefinition('wisembly.amqp.command.consumer');
-        $definition->replaceArgument(3, $configuration['console_path']);
+        $definition = $container->getDefinition(ConsumerCommand::class);
+        $definition->replaceArgument('$consolePath', $configuration['console_path']);
     }
 }

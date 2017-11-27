@@ -15,7 +15,7 @@
         "symfony/process": "^3.0 || ^4.0",
         "symfony/http-kernel": "^3.0 || ^4.0",
         "symfony/event-dispatcher": "^3.0 || ^4.0",
-        "symfony/dependency-injection": "^3.0 || ^4.0"
+        "symfony/dependency-injection": "^3.3 || ^4.0"
     },
 
     "require-dev": {
@@ -27,6 +27,10 @@
         "pecl-amqp": "PHP AMQP extension",
         "videlalvaro/php-amqplib": "If the pecl is not an option",
         "odolbeau/rabbit-mq-admin-toolkit" : "Configuring automatically your queues, exchanges and bindings"
+    },
+
+    "conflict": {
+        "symfony/dependency-injection": "< 3.3"
     },
 
     "authors": [

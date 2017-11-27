@@ -18,7 +18,7 @@ use Wisembly\AmqpBundle\Connection;
 use Wisembly\AmqpBundle\BrokerInterface;
 use Wisembly\AmqpBundle\MessagingException;
 
-class OldsoundBroker implements BrokerInterface
+class PhpAmqpLibBroker implements BrokerInterface
 {
     /** @var AMQPChannel[] */
     private $channels = [];
