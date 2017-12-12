@@ -10,7 +10,10 @@ use PhpAmqpLib\Exception\AMQPProtocolException;
 use PhpAmqpLib\Exception\AMQPProtocolChannelException;
 use PhpAmqpLib\Exception\AMQPProtocolConnectionException;
 
+use Swarrot\Broker\MessageProvider\MessageProviderInterface;
 use Swarrot\Broker\MessageProvider\PhpAmqpLibMessageProvider;
+
+use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
 use Swarrot\Broker\MessagePublisher\PhpAmqpLibMessagePublisher;
 
 use Wisembly\AmqpBundle\Gate;
@@ -32,8 +35,7 @@ class PhpAmqpLibBroker implements BrokerInterface
     /** @var PhpAmqpLibMessagePublisher[][] */
     private $producers = [];
 
-    /** {@inheritDoc} */
-    public function getProvider(Gate $gate)
+    public function getProvider(Gate $gate): MessageProviderInterface
     {
         $name = $gate->getName();
         $connection = $gate->getConnection()->getName();
@@ -54,8 +56,7 @@ class PhpAmqpLibBroker implements BrokerInterface
         return $this->providers[$connection][$name];
     }
 
-    /** {@inheritDoc} */
-    public function getProducer(Gate $gate)
+    public function getProducer(Gate $gate): MessagePublisherInterface
     {
         $name = $gate->getName();
         $connection = $gate->getConnection()->getName();
@@ -76,7 +77,7 @@ class PhpAmqpLibBroker implements BrokerInterface
         return $this->producers[$connection][$name];
     }
 
-    private function declare(Gate $gate, AMQPChannel $channel)
+    private function declare(Gate $gate, AMQPChannel $channel): void
     {
         if (false === $gate->getAutoDeclare()) {
             return;
@@ -117,8 +118,7 @@ class PhpAmqpLibBroker implements BrokerInterface
         );
     }
 
-    /** {@inheritDoc} */
-    public function createTemporaryQueue(Gate $gate)
+    public function createTemporaryQueue(Gate $gate): Gate
     {
         $key = $gate->getRoutingKey();
         $name = sha1(uniqid(mt_rand(), true));
@@ -142,12 +142,7 @@ class PhpAmqpLibBroker implements BrokerInterface
         return $gate;
     }
 
-    /**
-     * Get a channel with the connection $connection
-     *
-     * @return AMQPChannel
-     */
-    private function getChannel(Connection $connection)
+    private function getChannel(Connection $connection): AMQPChannel
     {
         $name = $connection->getName();
 
@@ -164,8 +159,7 @@ class PhpAmqpLibBroker implements BrokerInterface
         }
     }
 
-    /** @return AMQPLazyConnection */
-    private function getConnection(Connection $connection)
+    private function getConnection(Connection $connection): AMQPLazyConnection
     {
         $name = $connection->getName();
 
@@ -184,4 +178,3 @@ class PhpAmqpLibBroker implements BrokerInterface
         return $this->connections[$name] = $connection;
     }
 }
-

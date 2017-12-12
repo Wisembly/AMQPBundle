@@ -14,30 +14,9 @@ use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
  */
 interface BrokerInterface
 {
-    /**
-     * Return the provider $name for the connection $connection
-     *
-     * @param string $name Provider's identifier
-     *
-     * @return MessageProviderInterface
-     */
-    public function getProvider(Gate $gate);
+    public function getProvider(Gate $gate): MessageProviderInterface;
 
-    /**
-     * Return the producer $name for the connection $connection
-     *
-     * @param string $name Producer's identifier
-     *
-     * @return MessagePublisherInterface
-     */
-    public function getProducer(Gate $gate);
+    public function getProducer(Gate $gate): MessagePublisherInterface;
 
-    /**
-     * Create a temporary queue
-     *
-     * @param Gate original from which the data will be copied
-     *
-     * @return Gate the new associated gate
-     */
-    public function createTemporaryQueue(Gate $origin);
+    public function createTemporaryQueue(Gate $origin): Gate;
 }

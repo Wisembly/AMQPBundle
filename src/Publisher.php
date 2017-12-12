@@ -9,7 +9,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Publisher for AMQP Messages
  *
- * @author Baptiste Clavié <baptiste@wisembly.com>
+ * @author Baptiste Clavié <clavie.b@gmail.com>
  */
 class Publisher
 {
@@ -26,7 +26,7 @@ class Publisher
         $this->dispatcher = $dispatcher;
     }
 
-    public function publish(Message $message, Gate $gate)
+    public function publish(Message $message, Gate $gate): void
     {
         $provider = $this->broker->getProducer($gate);
         $provider->publish($message, $gate->getRoutingKey());
