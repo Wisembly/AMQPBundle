@@ -13,9 +13,6 @@ use BadMethodCallException;
  */
 class GatesBag implements ArrayAccess
 {
-    const IGNORE_ON_INVALID = 0;
-    const EXCEPTION_ON_INVALID = 1;
-
     private $gates = [];
 
     /** Add a Gate within this Bag */
@@ -61,7 +58,7 @@ class GatesBag implements ArrayAccess
     /** {@inheritDoc} */
     public function offsetSet($offset, $value)
     {
-        $this->set($offset, $value);
+        throw new BadMethodCallException('The set method is not supported on a Bag');
     }
 
     /** {@inheritDoc} */
@@ -76,4 +73,3 @@ class GatesBag implements ArrayAccess
         throw new BadMethodCallException('The unset method is not supported on a Bag');
     }
 }
-
