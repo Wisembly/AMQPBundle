@@ -4,7 +4,7 @@ namespace Wisembly\AmqpBundle;
 /**
  * Value object for an AMQP connection information
  *
- * @author Baptiste Clavié <baptiste@eisembly.com>
+ * @author Baptiste Clavié <clavie.b@gmail.com>
  */
 class Connection
 {
@@ -29,8 +29,15 @@ class Connection
     /** @var string */
     private $query;
 
-    public function __construct($name, $host, $port, $login, $password, $vhost, $query)
-    {
+    public function __construct(
+        string $name,
+        string $host,
+        ?int $port,
+        ?string $login,
+        ?string $password,
+        ?string $vhost,
+        ?string $query
+    ) {
         $this->name = $name;
         $this->host = $host;
         $this->port = $port;
@@ -40,43 +47,37 @@ class Connection
         $this->query = $query;
     }
 
-    /** @return string */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /** @return string */
-    public function getHost()
+    public function getHost(): string
     {
         return $this->host;
     }
 
-    /** @return string */
-    public function getPort()
+    public function getPort(): ?int
     {
         return $this->port;
     }
 
-    /** @return string */
-    public function getLogin()
+    public function getLogin(): ?string
     {
         return $this->login;
     }
 
-    /** @return string */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    /** @return string */
-    public function getVhost()
+    public function getVhost(): ?string
     {
         return $this->vhost;
     }
 
-    public function getQuery()
+    public function getQuery(): ?string
     {
         return $this->query;
     }

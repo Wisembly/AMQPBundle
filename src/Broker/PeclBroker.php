@@ -13,7 +13,10 @@ use AMQPChannelException;
 use AMQPExchangeException;
 use AMQPConnectionException;
 
+use Swarrot\Broker\MessageProvider\MessageProviderInterface;
 use Swarrot\Broker\MessageProvider\PeclPackageMessageProvider;
+
+use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
 use Swarrot\Broker\MessagePublisher\PeclPackageMessagePublisher;
 
 use Wisembly\AmqpBundle\Gate;
@@ -39,8 +42,7 @@ class PeclBroker implements BrokerInterface
     /** @var PeclPackageMessagePublisher[][] */
     private $producers = [];
 
-    /** {@inheritDoc} */
-    public function getProvider(Gate $gate)
+    public function getProvider(Gate $gate): MessageProviderInterface
     {
         $name = $gate->getName();
         $connection = $gate->getConnection()->getName();
@@ -61,8 +63,7 @@ class PeclBroker implements BrokerInterface
         return $this->providers[$connection][$name];
     }
 
-    /** {@inheritDoc} */
-    public function getProducer(Gate $gate)
+    public function getProducer(Gate $gate): MessagePublisherInterface
     {
         $name = $gate->getName();
         $connection = $gate->getConnection()->getName();
@@ -87,7 +88,7 @@ class PeclBroker implements BrokerInterface
         return $this->producers[$connection][$name];
     }
 
-    private function declare(Gate $gate, AMQPChannel $channel)
+    private function declare(Gate $gate, AMQPChannel $channel): void
     {
         if (false === $gate->getAutoDeclare()) {
             return;
@@ -146,8 +147,7 @@ class PeclBroker implements BrokerInterface
         }
     }
 
-    /** {@inheritDoc} */
-    public function createTemporaryQueue(Gate $gate)
+    public function createTemporaryQueue(Gate $gate): Gate
     {
         $id = sha1(uniqid(mt_rand(), true));
         $key = $gate->getRoutingKey();
@@ -168,13 +168,7 @@ class PeclBroker implements BrokerInterface
         return $gate;
     }
 
-    /**
-     * Get a channel with the connection $connection
-     *
-     * @param Connection $connnection Connection to use
-     * @return AMQPChannel
-     */
-    private function getChannel(Connection $connection)
+    private function getChannel(Connection $connection): AMQPChannel
     {
         $name = $connection->getName();
 

@@ -35,18 +35,18 @@ class MessagePublishedEvent extends Event
     }
 
     /** @return Message */
-    public function getMessage()
+    public function getMessage(): Message
     {
         return $this->message;
     }
 
     /** @return Gate */
-    public function getGate()
+    public function getGate(): Gate
     {
         return $this->gate;
     }
 
-    public function getPublishedAt()
+    public function getPublishedAt(): Datetime
     {
         return $this->publishedAt;
     }

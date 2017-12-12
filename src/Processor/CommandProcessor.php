@@ -5,7 +5,6 @@ use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use Swarrot\Broker\Message;
@@ -13,21 +12,10 @@ use Swarrot\Broker\MessageProvider\MessageProviderInterface;
 use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
 
 use Swarrot\Processor\ProcessorInterface;
+use Swarrot\Processor\Ack\AckProcessor;
 
 class CommandProcessor implements ProcessorInterface
 {
-    /** @var int Exit code to interpret as rabbitmq actions */
-    const REQUEUE = 126;
-
-    /** @var int Maximum number of attempts if we have to retry a command */
-    const MAX_ATTEMPTS = 3;
-
-    /** @var ProcessBuilder */
-    private $builder;
-
-    /** @var MessagePublisherInterface */
-    private $publisher;
-
     /** @var MessageProviderInterface */
     private $provider;
 
@@ -37,12 +25,10 @@ class CommandProcessor implements ProcessorInterface
     /** @var string path to the sf console */
     private $commandPath;
 
-    public function __construct(LoggerInterface $logger = null, ProcessBuilder $builder, MessageProviderInterface $provider, MessagePublisherInterface $publisher, $commandPath, $environment, $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    public function __construct(LoggerInterface $logger = null, MessageProviderInterface $provider, string $commandPath, string $environment, $verbosity = OutputInterface::VERBOSITY_NORMAL)
     {
         $this->logger = $logger ?: new NullLogger;
-        $this->builder = $builder;
         $this->provider = $provider;
-        $this->publisher = $publisher;
         $this->verbosity = $verbosity;
         $this->commandPath = $commandPath;
         $this->environment = $environment;
@@ -52,12 +38,7 @@ class CommandProcessor implements ProcessorInterface
 
     public function process(Message $message, array $options)
     {
-        $properties = $message->getProperties();
         $body = json_decode($message->getBody(), true);
-
-        if (!isset($properties['wisembly_attempts'])) {
-            $properties['wisembly_attempts'] = 0;
-        }
 
         if (!isset($body['arguments'])) {
             $body['arguments'] = [];
@@ -91,8 +72,6 @@ class CommandProcessor implements ProcessorInterface
             break;
         }
 
-        ++$properties['wisembly_attempts'];
-
         $this->logger->info('Dispatching command', $body);
 
         // if no proper command given, log it and nack
@@ -102,17 +81,24 @@ class CommandProcessor implements ProcessorInterface
             return;
         }
 
-        $this->builder->setPrefix([PHP_BINARY, $this->commandPath, $body['command']]);
-        $this->builder->setArguments($body['arguments']);
+        $process = new Process(array_merge(
+            [
+                PHP_BINARY,
+                $this->commandPath,
+                $body['command'],
+            ],
+
+            $body['arguments']
+        ));
 
         // a stdin is provided, let's send it to the command
         if (isset($body['stdin'])) {
-            $this->builder->setInput($body['stdin']);
-            // I remove the stdin for the logs
+            $process->setInput($body['stdin']);
+
+            // remove the stdin for the logs
             unset($body['stdin']);
         }
 
-        $process = $this->builder->getProcess();
         $process->run(function ($type, $data) {
             switch ($type) {
                 case Process::OUT:
@@ -125,11 +111,16 @@ class CommandProcessor implements ProcessorInterface
             }
         });
 
-        // reset the builder
-        $this->builder->setArguments([]);
-        $this->builder->setPrefix([]);
-
+        // todo Do not ack here, let it be acked by the AckProcessor
         if ($process->isSuccessful()) {
+            @trigger_error(
+                \E_USER_DEPRECATED,
+                sprintf(
+                    'From 2.0, the message won\'t be acked on successful process. Use the %s processor instead.',
+                    AckProcessor::class
+                )
+            );
+
             $this->logger->info('The process was successful', $body);
             $this->provider->ack($message);
             return;
@@ -138,15 +129,15 @@ class CommandProcessor implements ProcessorInterface
         $code = $process->getExitCode();
         $this->logger->error('The command failed ; aborting', ['body' => $body, 'code' => $code]);
 
+        @trigger_error(
+            \E_USER_DEPRECATED,
+            sprintf(
+                'From 2.0, if a process fail, it will trigger an exception and _not_ nack the message. Use the %s processor instead.',
+                AckProcessor::class
+            )
+        );
+
         $this->provider->nack($message, false);
-
-        // should we requeue it ?
-        if (static::REQUEUE === $code && $properties['wisembly_attempts'] < static::MAX_ATTEMPTS) {
-            $this->logger->notice('Retrying...', $body);
-
-            $message = new Message($message->getBody(), $properties, $message->getId());
-            $this->publisher->publish($message);
-        }
     }
 }
 

@@ -4,7 +4,7 @@ namespace Wisembly\AmqpBundle;
 /**
  * Value object for an AMQP gate
  *
- * @author Baptiste Clavié <baptiste@eisembly.com>
+ * @author Baptiste Clavié <clavie.b@gmail.com>
  */
 class Gate
 {
@@ -29,22 +29,16 @@ class Gate
     /** @var string Routing key */
     private $key = null;
 
-    /** @var boolean Should we declare queue and exchange befor use */
+    /** @var bool Should we declare queue and exchange befor use */
     private $autoDeclare;
 
-    /**
-     * @param string $name Gate's name
-     * @param string $exchange Exchange's name
-     * @param string $queue Queue's name
-     * @param string|null $key routing key to use
-     */
     public function __construct(
         Connection $connection,
-        $name,
-        $exchange,
-        $queue,
-        $key = null,
-        $autoDeclare = true,
+        string $name,
+        string $exchange,
+        string $queue,
+        ?string $key = null,
+        bool $autoDeclare = true,
         array $queueOptions = [],
         array $exchangeOptions = []
     ) {
@@ -58,50 +52,42 @@ class Gate
         $this->exchangeOptions = $exchangeOptions;
     }
 
-    /** @return string Gate's name */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /** @return string Exchange to use */
-    public function getExchange()
+    public function getExchange(): string
     {
         return $this->exchange;
     }
 
-    /** @return string Queue to use */
-    public function getQueue()
+    public function getQueue(): string
     {
         return $this->queue;
     }
 
-    /** @return string Routing key */
-    public function getRoutingKey()
+    public function getRoutingKey(): ?string
     {
         return $this->key;
     }
 
-    /** @return string Connection's name to use */
-    public function getConnection()
+    public function getConnection(): string
     {
         return $this->connection;
     }
 
-    /** @return array */
-    public function getQueueOptions()
+    public function getQueueOptions(): array
     {
         return $this->queueOptions;
     }
 
-    /** @return array */
-    public function getExchangeOptions()
+    public function getExchangeOptions(): array
     {
         return $this->exchangeOptions;
     }
 
-    /** @return boolean */
-    public function getAutoDeclare()
+    public function getAutoDeclare(): bool
     {
         return $this->autoDeclare;
     }
