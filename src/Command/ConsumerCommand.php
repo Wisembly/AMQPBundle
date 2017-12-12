@@ -75,12 +75,10 @@ class ConsumerCommand extends Command
         $gate = $this->gates->get($gate);
 
         $provider = $this->broker->getProvider($gate);
-        $producer = $this->broker->getProducer($gate);
 
         $processor = new CommandProcessor(
             $this->logger,
             $provider,
-            $producer,
             $this->consolePath,
             $input->hasOption('env') ? $input->getOption('env') : null,
             true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity()
@@ -91,6 +89,7 @@ class ConsumerCommand extends Command
             $processor = new RpcServerProcessor($processor, $producer, $this->logger);
         }
 
+        // Wrap processor in an Swarrot ExceptionCatcherProcessor to avoid breaking processor if an error occurs
         $processor = new ExceptionCatcherProcessor($processor, $this->logger);
         $options = [];
 
@@ -102,9 +101,7 @@ class ConsumerCommand extends Command
             $options['memory_limit'] = (int) $input->getOption('memory-limit');
         }
 
-        // Wrap processor in an Swarrot ExceptionCatcherProcessor to avoid breaking processor if an error occurs
-        $consumer  = new Consumer($provider, $processor);
-
+        $consumer = new Consumer($provider, $processor);
         $consumer->consume(['poll_interval' => $input->getOption('poll-interval')]);
     }
 }

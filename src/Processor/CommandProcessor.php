@@ -15,15 +15,6 @@ use Swarrot\Processor\ProcessorInterface;
 
 class CommandProcessor implements ProcessorInterface
 {
-    /** @var int Exit code to interpret as rabbitmq actions */
-    const REQUEUE = 126;
-
-    /** @var int Maximum number of attempts if we have to retry a command */
-    const MAX_ATTEMPTS = 3;
-
-    /** @var MessagePublisherInterface */
-    private $publisher;
-
     /** @var MessageProviderInterface */
     private $provider;
 
@@ -33,11 +24,10 @@ class CommandProcessor implements ProcessorInterface
     /** @var string path to the sf console */
     private $commandPath;
 
-    public function __construct(LoggerInterface $logger = null, MessageProviderInterface $provider, MessagePublisherInterface $publisher, $commandPath, $environment, $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    public function __construct(LoggerInterface $logger = null, MessageProviderInterface $provider, string $commandPath, string $environment, $verbosity = OutputInterface::VERBOSITY_NORMAL)
     {
         $this->logger = $logger ?: new NullLogger;
         $this->provider = $provider;
-        $this->publisher = $publisher;
         $this->verbosity = $verbosity;
         $this->commandPath = $commandPath;
         $this->environment = $environment;
@@ -47,12 +37,7 @@ class CommandProcessor implements ProcessorInterface
 
     public function process(Message $message, array $options)
     {
-        $properties = $message->getProperties();
         $body = json_decode($message->getBody(), true);
-
-        if (!isset($properties['wisembly_attempts'])) {
-            $properties['wisembly_attempts'] = 0;
-        }
 
         if (!isset($body['arguments'])) {
             $body['arguments'] = [];
@@ -85,8 +70,6 @@ class CommandProcessor implements ProcessorInterface
             case OutputInterface::VERBOSITY_NORMAL:
             break;
         }
-
-        ++$properties['wisembly_attempts'];
 
         $this->logger->info('Dispatching command', $body);
 
@@ -137,14 +120,6 @@ class CommandProcessor implements ProcessorInterface
         $this->logger->error('The command failed ; aborting', ['body' => $body, 'code' => $code]);
 
         $this->provider->nack($message, false);
-
-        // should we requeue it ?
-        if (static::REQUEUE === $code && $properties['wisembly_attempts'] < static::MAX_ATTEMPTS) {
-            $this->logger->notice('Retrying...', $body);
-
-            $message = new Message($message->getBody(), $properties, $message->getId());
-            $this->publisher->publish($message);
-        }
     }
 }
 
