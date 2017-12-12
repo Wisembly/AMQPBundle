@@ -26,13 +26,6 @@ use Wisembly\AmqpBundle\MessagingException;
 
 class PeclBroker implements BrokerInterface
 {
-    const TYPES = [
-        'direct' => AMQP_EX_TYPE_DIRECT,
-        'fanout' => AMQP_EX_TYPE_FANOUT,
-        'headers' => AMQP_EX_TYPE_HEADERS,
-        'topic' => AMQP_EX_TYPE_TOPIC,
-    ];
-
     /** @var AMQPChannel[] */
     private $channels = [];
 
@@ -94,6 +87,13 @@ class PeclBroker implements BrokerInterface
             return;
         }
 
+        static $types = [
+            'direct' => AMQP_EX_TYPE_DIRECT,
+            'fanout' => AMQP_EX_TYPE_FANOUT,
+            'headers' => AMQP_EX_TYPE_HEADERS,
+            'topic' => AMQP_EX_TYPE_TOPIC,
+        ];
+
         $options = $gate->getQueueOptions();
         $queue = new AMQPQueue($channel);
         $queue->setName($gate->getQueue());
@@ -130,7 +130,7 @@ class PeclBroker implements BrokerInterface
 
         $exchange->setFlags($flags);
         $exchange->setArguments($options['arguments'] ?? []);
-        $exchange->setType(self::TYPES[$options['type'] ?? 'direct'] ?? 'direct');
+        $exchange->setType($types[$options['type'] ?? 'direct'] ?? 'direct');
         $exchange->declareExchange();
 
         $queue->bind(
