@@ -11,8 +11,6 @@ use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
-use Symfony\Component\Process\ProcessBuilder;
-
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
@@ -81,7 +79,6 @@ class ConsumerCommand extends Command
 
         $processor = new CommandProcessor(
             $this->logger,
-            new ProcessBuilder,
             $provider,
             $producer,
             $this->consolePath,

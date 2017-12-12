@@ -5,7 +5,6 @@ use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use Swarrot\Broker\Message;
@@ -22,9 +21,6 @@ class CommandProcessor implements ProcessorInterface
     /** @var int Maximum number of attempts if we have to retry a command */
     const MAX_ATTEMPTS = 3;
 
-    /** @var ProcessBuilder */
-    private $builder;
-
     /** @var MessagePublisherInterface */
     private $publisher;
 
@@ -37,10 +33,9 @@ class CommandProcessor implements ProcessorInterface
     /** @var string path to the sf console */
     private $commandPath;
 
-    public function __construct(LoggerInterface $logger = null, ProcessBuilder $builder, MessageProviderInterface $provider, MessagePublisherInterface $publisher, $commandPath, $environment, $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    public function __construct(LoggerInterface $logger = null, MessageProviderInterface $provider, MessagePublisherInterface $publisher, $commandPath, $environment, $verbosity = OutputInterface::VERBOSITY_NORMAL)
     {
         $this->logger = $logger ?: new NullLogger;
-        $this->builder = $builder;
         $this->provider = $provider;
         $this->publisher = $publisher;
         $this->verbosity = $verbosity;
@@ -102,17 +97,24 @@ class CommandProcessor implements ProcessorInterface
             return;
         }
 
-        $this->builder->setPrefix([PHP_BINARY, $this->commandPath, $body['command']]);
-        $this->builder->setArguments($body['arguments']);
+        $process = new Process(array_merge(
+            [
+                PHP_BINARY,
+                $this->commandPath,
+                $body['command'],
+            ],
+
+            $body['arguments']
+        ));
 
         // a stdin is provided, let's send it to the command
         if (isset($body['stdin'])) {
-            $this->builder->setInput($body['stdin']);
-            // I remove the stdin for the logs
+            $process->setInput($body['stdin']);
+
+            // remove the stdin for the logs
             unset($body['stdin']);
         }
 
-        $process = $this->builder->getProcess();
         $process->run(function ($type, $data) {
             switch ($type) {
                 case Process::OUT:
@@ -124,10 +126,6 @@ class CommandProcessor implements ProcessorInterface
                     break;
             }
         });
-
-        // reset the builder
-        $this->builder->setArguments([]);
-        $this->builder->setPrefix([]);
 
         if ($process->isSuccessful()) {
             $this->logger->info('The process was successful', $body);
