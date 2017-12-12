@@ -12,6 +12,7 @@ use Swarrot\Broker\MessageProvider\MessageProviderInterface;
 use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
 
 use Swarrot\Processor\ProcessorInterface;
+use Swarrot\Processor\Ack\AckProcessor;
 
 class CommandProcessor implements ProcessorInterface
 {
@@ -110,7 +111,16 @@ class CommandProcessor implements ProcessorInterface
             }
         });
 
+        // todo Do not ack here, let it be acked by the AckProcessor
         if ($process->isSuccessful()) {
+            @trigger_error(
+                \E_USER_DEPRECATED,
+                sprintf(
+                    'From 2.0, the message won\'t be acked on successful process. Use the %s processor instead.',
+                    AckProcessor::class
+                )
+            );
+
             $this->logger->info('The process was successful', $body);
             $this->provider->ack($message);
             return;
@@ -118,6 +128,14 @@ class CommandProcessor implements ProcessorInterface
 
         $code = $process->getExitCode();
         $this->logger->error('The command failed ; aborting', ['body' => $body, 'code' => $code]);
+
+        @trigger_error(
+            \E_USER_DEPRECATED,
+            sprintf(
+                'From 2.0, if a process fail, it will trigger an exception and _not_ nack the message. Use the %s processor instead.',
+                AckProcessor::class
+            )
+        );
 
         $this->provider->nack($message, false);
     }
