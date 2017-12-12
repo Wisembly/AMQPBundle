@@ -17,6 +17,8 @@ use Wisembly\AmqpBundle\Connection;
 use Wisembly\AmqpBundle\UriConnection;
 
 use Wisembly\AmqpBundle\BrokerInterface;
+use Wisembly\AmqpBundle\Broker\PeclBroker;
+
 use Wisembly\AmqpBundle\Command\ConsumerCommand;
 
 /**
@@ -42,6 +44,12 @@ class WisemblyAmqpExtension extends Extension
         $this->registerCommands($container, $loader, $config);
 
         $loader->load('brokers.xml');
+
+        // remove pecl broker if not available
+        if (!extension_loaded('amqp')) {
+            $container->removeDefinition(PeclBroker::class);
+        }
+
         $loader->load('profiler.xml');
 
         $container->registerForAutoconfiguration(BrokerInterface::class)
