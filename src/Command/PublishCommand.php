@@ -50,6 +50,6 @@ class PublishCommand extends Command
         $gate = $this->gates->get($input->getArgument('gate'));
 
         $this->publisher->publish(new Message($message), $gate);
-        $output->writeln(sprintf('<info>Published "%s" message to "%s" queue</info>', $message, $gate));
+        $output->writeln(sprintf('<info>Published "%s" message to "%s" queue</info>', $message, $gate->getName()));
     }
 }
