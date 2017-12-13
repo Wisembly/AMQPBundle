@@ -4,7 +4,7 @@ namespace Wisembly\AmqpBundle;
 use Throwable;
 use RuntimeException;
 
-final class MessagingException extends RuntimeException
+final class MessagingException extends RuntimeException implements AmqpExceptionInterface
 {
     public function __construct(Throwable $t)
     {
