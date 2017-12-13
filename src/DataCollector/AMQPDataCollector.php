@@ -29,6 +29,12 @@ class AMQPDataCollector extends DataCollector
                        'count'    => count($this->messages)];
     }
 
+    public function reset()
+    {
+        $this->data = ['count' => 0,
+                       'messages' => []];
+    }
+
     /**
      * Add some data to the collector
      *
