@@ -45,14 +45,14 @@ class ConsumerCommand extends Command
     /** @var BrokerInterface */
     private $broker;
 
-    /** @var ProcessFactory */
-    private $factory;
+    /** @var CommandProcessor */
+    private $processor;
 
-    public function __construct(?LoggerInterface $logger, BrokerInterface $broker, GatesBag $gates, ProcessFactory $factory)
+    public function __construct(?LoggerInterface $logger, BrokerInterface $broker, GatesBag $gates, CommandProcessor $processor)
     {
         $this->gates = $gates;
         $this->broker = $broker;
-        $this->factory = $factory;
+        $this->processor = $processor;
         $this->logger = $logger ?: new NullLogger;
 
         parent::__construct();
@@ -77,31 +77,24 @@ class ConsumerCommand extends Command
         $gate = $this->gates->get($gate);
 
         $provider = $this->broker->getProvider($gate);
+        $processor = $this->processor;
 
-        $processor = new CommandProcessor(
-            $this->logger,
-            $this->factory
-        );
-
-        // if we want a rpc mechanism, let's wrap a rpc server processor
         if (true === $input->getOption('rpc')) {
             $processor = new RpcServerProcessor($processor, $producer, $this->logger);
         }
 
-        // Wrap processor in an Swarrot ExceptionCatcherProcessor to avoid breaking processor if an error occurs
         $processor = new ExceptionCatcherProcessor($processor, $this->logger);
         $options = [];
 
         $processor = new SignalHandlerProcessor($processor, $this->logger);
 
-        // we apply a memory limit to the consumer
         if (null !== $input->getOption('memory-limit')) {
             $processor = new MemoryLimitProcessor($processor, $this->logger);
             $options['memory_limit'] = (int) $input->getOption('memory-limit');
         }
 
         $consumer = new Consumer($provider, $processor);
-        $consumer->consume([
+        $consumer->consume($options + [
             'poll_interval' => $input->getOption('poll-interval'),
             'verbosity' => true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity()
         ]);
