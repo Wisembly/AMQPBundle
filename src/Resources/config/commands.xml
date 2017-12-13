@@ -18,9 +18,5 @@
         <service id="Wisembly\AmqpBundle\Command\PublishCommand">
             <tag name="console.command" />
         </service>
-
-        <!-- BC //-->
-        <service id="wisembly.amqp.command.consumer" alias="Wisembly\AmqpBundle\Command\ConsumerCommand" />
-        <service id="wisembly.amqp.command.publisher" alias="Wisembly\AmqpBundle\Command\PublishCommand" />
     </services>
 </container>

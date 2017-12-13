@@ -9,9 +9,5 @@
 
         <service id="Wisembly\AmqpBundle\Publisher" public="true" />
         <service id="Wisembly\AmqpBundle\GatesBag" />
-
-        <!-- BC //-->
-        <service id="wisembly.amqp.publisher" alias="Wisembly\AmqpBundle\Publisher" public="true" />
-        <service id="wisembly.amqp.gates" alias="Wisembly\AmqpBundle\GatesBag" public="true" />
     </services>
 </container>
