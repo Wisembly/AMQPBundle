@@ -5,29 +5,27 @@ use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 use Swarrot\Broker\Message;
-use Swarrot\Processor\ProcessorInterface;
-use Swarrot\Processor\Ack\AckProcessor;
 
-class CommandProcessor implements ProcessorInterface
+use Swarrot\Processor\ProcessorInterface;
+use Swarrot\Processor\ConfigurableInterface;
+
+class CommandProcessor implements ProcessorInterface, ConfigurableInterface
 {
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var int */
-    private $verbosity;
-
     /** @var ProcessFactory */
     private $factory;
 
-    public function __construct(LoggerInterface $logger = null, ProcessFactory $factory, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    public function __construct(LoggerInterface $logger = null, ProcessFactory $factory)
     {
         $this->factory = $factory;
-        $this->verbosity = $verbosity;
         $this->logger = $logger ?: new NullLogger;
     }
 
@@ -47,7 +45,7 @@ class CommandProcessor implements ProcessorInterface
             $body['command'],
             $body['arguments'] ?? [],
             $body['stdin'] ?? null,
-            $this->verbosity
+            $options['verbosity']
         );
 
         try {
@@ -69,5 +67,18 @@ class CommandProcessor implements ProcessorInterface
 
             throw new CommandFailureException($body, $process, $e);
         }
+    }
+
+    public function setDefaultOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefault('verbosity', OutputInterface::VERBOSITY_NORMAL);
+
+        $resolver->setAllowedValues('verbosity', [
+            OutputInterface::VERBOSITY_QUIET,
+            OutputInterface::VERBOSITY_NORMAL,
+            OutputInterface::VERBOSITY_VERBOSE,
+            OutputInterface::VERBOSITY_VERY_VERBOSE,
+            OutputInterface::VERBOSITY_DEBUG,
+        ]);
     }
 }

@@ -80,8 +80,7 @@ class ConsumerCommand extends Command
 
         $processor = new CommandProcessor(
             $this->logger,
-            $this->factory,
-            true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity()
+            $this->factory
         );
 
         // if we want a rpc mechanism, let's wrap a rpc server processor
@@ -102,6 +101,9 @@ class ConsumerCommand extends Command
         }
 
         $consumer = new Consumer($provider, $processor);
-        $consumer->consume(['poll_interval' => $input->getOption('poll-interval')]);
+        $consumer->consume([
+            'poll_interval' => $input->getOption('poll-interval'),
+            'verbosity' => true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity()
+        ]);
     }
 }
