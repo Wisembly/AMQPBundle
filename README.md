@@ -1,36 +1,20 @@
 Amqp Swarrot Bundle
 ===================
-This bundle integrates Swarrot into Symfony2, with another approach from the
+This bundle integrates Swarrot into Symfony, with another approach from the
 [SwarrotBundle](http://github.com/swarrot/SwarrotBundle). Currently in early
 stages of development... and opensourcing.
 
 But, unlike the SwarrotBundle, this bundle does not allow you (...yet ?) to
 configure multiple consumers, and force you to use the `CommandProcessor`
 approach (Every message should be treated in the `CommandProcessor`, which will
-be treated through a Symfony `Process`.
+be treated through a Symfony `Process`).
 
 Installation
 ------------
 The recommended way is to go through Composer. Once you have installed it, you
 should run the require command: `composer require wisembly\amqp-bundle`, and
 pick the latest version available on packagist (you should avoid `@stable`
-meta-constraint).
-
-Once it is installed, you can add the bundle to your `AppKernel` file :
-
-```php
-public function registerBundles()
-{
-    $bundles = [
-        // ...
-        new Wisembly\AmqpBundle\WisemblyAmqpBundle
-    ];
-
-    // ...
-
-    return $bundles;
-}
-```
+meta-constraint). Note that a flex recipe is available. :}
 
 Configuration Reference
 -----------------------
@@ -38,6 +22,7 @@ The configuration reference can be found through the command
 `app/console config:dump-reference WisemblyAmqpBundle` :
 
 ```yaml
+# Default configuration for extension with alias: "wisembly_amqp"
 wisembly_amqp:
 
     # Default connection to use
@@ -46,16 +31,21 @@ wisembly_amqp:
     # Broker to use
     broker:               ~ # Required
 
+    # Path to sf console binary
+    console_path:         ~ # Required
+
     # Connections to AMQP to use
     connections:          # Required
 
         # Prototype
         name:
-            host:                  ~ # Required
-            port:                  ~ # Required
-            login:                 ~ # Required
-            password:              ~ # Required
-            vhost:                 /
+            uri:                  null
+            host:                 null
+            port:                 null
+            login:                null
+            password:             null
+            vhost:                null
+            query:                null
 
     # Access gate for each dialog with AMQP
     gates:
@@ -63,35 +53,41 @@ wisembly_amqp:
         # Prototype
         name:
 
-            # Connection to use with this gate
-            connection:            null
-
             # Does the queue and the exchange be declared before use them
-            auto_declare:          true
+            auto_declare:         true
 
-            # Exchange point associated to this gate
-            exchange:
-                name:               ~ # Required
-                options:
-                    type:           direct
-                    passive:        false
-                    durable:        true
-                    auto_delete:    false
-                    internal:       false
-                    arguments:      {  }
+            # Connection to use with this gate
+            connection:           null
 
             # Routing key to use when sending messages through this gate
-            routing_key:            null
+            routing_key:          null
 
             # Queue to fetch the information from
-            queue:
-                name:               ~ # Required
+            queue:                # Required
+                name:                 ~ # Required
                 options:
-                    passive:        false
-                    durable:        true
-                    exclusive:      false
-                    auto_delete:    false
-                    arguments:      { }
+                    passive:              false
+                    durable:              true
+                    exclusive:            false
+                    auto_delete:          false
+                    arguments:
+
+                        # Prototype
+                        name:                 ~
+
+            # Exchange point associated to this gate
+            exchange:             # Required
+                name:                 ~ # Required
+                options:
+                    type:                 null
+                    passive:              false
+                    durable:              true
+                    auto_delete:          false
+                    internal:             false
+                    arguments:
+
+                        # Prototype
+                        name:                 ~
 ```
 
 Usage
@@ -156,19 +152,24 @@ a polling interval, ...), but you can check all of those in the `--help` option.
 
 Whenever a message is consumed by this consumer, it will launch a new `Process`
 to treat it, and will pass the environment and verbosity to the command that is
-runned. The output will then be retrieved and printed on the consumer's output.
+run. The output will then be retrieved and printed on the consumer's output.
 
 ### Implementing a Broker
 Two brokers are built-in :
 
-- the `pecl` ([php amqp extension](https://pecl.php.net/package/amqp)) ;
-- [`php-amqplib`](https://github.com/php-amqplib/php-amqplib), which is the one
-  implemented in full PHP
+- The `Wisembly\AmqpBundle\Broker\PeclBroker` ([php amqp extension](https://pecl.php.net/package/amqp))
+  Note that if the pecl extension is not loaded / installed, the broker won't
+  be available.
+- [`Wisembly\AmqpBundle\Broker\PhpAmqpLibBroker`](https://github.com/php-amqplib/php-amqplib),
+  which is the one implemented in full PHP
 
-The recommended broker is to use if available the `pecl` broker.
+The recommended broker is to use if available the
+`Wisembly\AmqpBundle\Broker\PeclBroker` broker.
 
 But you can implement more of those (such as a Redis one or whatever else !) by
-implementing the `Wisembly\AmqpBundle\BrokerInterface` interface, and adding a
+implementing the `Wisembly\AmqpBundle\BrokerInterface` interface. If using the
+`autoconfigure` setting of the dic 3.4+, that's all you have to do. If you want
+to add an alias or if not using the `autoconfigure` feature, you can add a
 `wisembly.amqp.broker` tag, which can have an alias (it will take the service's
 name if no alias are specified).
 
