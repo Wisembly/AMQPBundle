@@ -18,6 +18,7 @@ use Swarrot\Consumer;
 
 use Swarrot\Processor\Ack\AckProcessor;
 use Swarrot\Processor\RPC\RpcServerProcessor;
+use Swarrot\Processor\Stack\StackedProcessor;
 use Swarrot\Processor\MemoryLimit\MemoryLimitProcessor;
 use Swarrot\Processor\SignalHandler\SignalHandlerProcessor;
 use Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor;
