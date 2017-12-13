@@ -82,6 +82,14 @@ class CommandProcessor implements ProcessorInterface
 
         // if no proper command given, log it and nack
         if (!isset($body['command'])) {
+            @trigger_error(
+                sprintf(
+                    'From 2.0, if a process fail, it will trigger an exception and _not_ nack the message. Use the %s processor instead.',
+                    AckProcessor::class
+                ),
+                \E_USER_DEPRECATED
+            );
+
             $this->logger->critical('No proper command found in message', ['body' => $body]);
             $this->provider->nack($message, false);
             return;
@@ -120,11 +128,11 @@ class CommandProcessor implements ProcessorInterface
 
             // todo Do not ack here, let it be acked by the AckProcessor
             @trigger_error(
-                \E_USER_DEPRECATED,
                 sprintf(
                     'From 2.0, the message won\'t be acked on successful process. Use the %s processor instead.',
                     AckProcessor::class
-                )
+                ),
+                \E_USER_DEPRECATED
             );
 
             $this->logger->info('The process was successful', $body);
@@ -133,11 +141,11 @@ class CommandProcessor implements ProcessorInterface
             $this->logger->error('The command failed ; aborting', ['body' => $body, 'code' => $process->getExitCodeText()]);
 
             @trigger_error(
-                \E_USER_DEPRECATED,
                 sprintf(
                     'From 2.0, if a process fail, it will trigger an exception and _not_ nack the message. Use the %s processor instead.',
                     AckProcessor::class
-                )
+                ),
+                \E_USER_DEPRECATED
             );
 
             $this->provider->nack($message, false);
