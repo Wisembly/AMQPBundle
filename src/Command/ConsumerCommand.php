@@ -84,14 +84,14 @@ class ConsumerCommand extends Command
 
         if (true === $input->getOption('rpc')) {
             $processor = new RpcServerProcessor($processor, $producer, $this->logger);
-            $middlewares = [$processor];
+            $middlewares[] = $processor;
         }
 
         $processor = new AckProcessor($processor, $provider, $this->logger);
-        $middlewares = [$processor];
+        $middlewares[] = $processor;
 
         $processor = new SignalHandlerProcessor($processor, $this->logger);
-        $middlewares = [$processor];
+        $middlewares[] = $processor;
 
         $options = [
             'poll_interval' => $input->getOption('poll-interval'),
@@ -100,13 +100,13 @@ class ConsumerCommand extends Command
 
         if (null !== $input->getOption('memory-limit')) {
             $processor = new MemoryLimitProcessor($processor, $this->logger);
-            $middlewares = [$processor];
+            $middlewares[] = $processor;
 
             $options['memory_limit'] = (int) $input->getOption('memory-limit');
         }
 
         $processor = new ExceptionCatcherProcessor($processor, $this->logger);
-        $middlewares = [$processor];
+        $middlewares[] = $processor;
 
         $processor = new StackedProcessor($processor, $middlewares);
 
