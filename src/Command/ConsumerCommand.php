@@ -87,7 +87,10 @@ class ConsumerCommand extends Command
         $processor = new AckProcessor($processor, $provider, $this->logger);
         $processor = new SignalHandlerProcessor($processor, $this->logger);
 
-        $options = [];
+        $options = [
+            'poll_interval' => $input->getOption('poll-interval'),
+            'verbosity' => true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity(),
+        ];
 
         if (null !== $input->getOption('memory-limit')) {
             $processor = new MemoryLimitProcessor($processor, $this->logger);
@@ -97,9 +100,6 @@ class ConsumerCommand extends Command
         $processor = new ExceptionCatcherProcessor($processor, $this->logger);
 
         $consumer = new Consumer($provider, $processor);
-        $consumer->consume($options + [
-            'poll_interval' => $input->getOption('poll-interval'),
-            'verbosity' => true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity()
-        ]);
+        $consumer->consume($options);
     }
 }
