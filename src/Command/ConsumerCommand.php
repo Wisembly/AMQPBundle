@@ -23,6 +23,8 @@ use Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor;
 
 use Wisembly\AmqpBundle\GatesBag;
 use Wisembly\AmqpBundle\BrokerInterface;
+
+use Wisembly\AmqpBundle\Processor\ProcessFactory;
 use Wisembly\AmqpBundle\Processor\CommandProcessor;
 
 /**
@@ -43,14 +45,14 @@ class ConsumerCommand extends Command
     /** @var BrokerInterface */
     private $broker;
 
-    /** @var string */
-    private $consolePath;
+    /** @var ProcessFactory */
+    private $factory;
 
-    public function __construct(?LoggerInterface $logger, BrokerInterface $broker, GatesBag $gates, string $consolePath)
+    public function __construct(?LoggerInterface $logger, BrokerInterface $broker, GatesBag $gates, ProcessFactory $factory)
     {
         $this->gates = $gates;
         $this->broker = $broker;
-        $this->consolePath = $consolePath;
+        $this->factory = $factory;
         $this->logger = $logger ?: new NullLogger;
 
         parent::__construct();
@@ -78,7 +80,7 @@ class ConsumerCommand extends Command
 
         $processor = new CommandProcessor(
             $this->logger,
-            $this->consolePath,
+            $this->factory,
             true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity()
         );
 

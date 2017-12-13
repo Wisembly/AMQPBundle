@@ -18,48 +18,22 @@ class CommandProcessor implements ProcessorInterface
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var string path to the sf console */
-    private $commandPath;
-
     /** @var int */
     private $verbosity;
 
-    public function __construct(LoggerInterface $logger = null, string $commandPath, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    /** @var ProcessFactory */
+    private $factory;
+
+    public function __construct(LoggerInterface $logger = null, ProcessFactory $factory, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
     {
-        $this->logger = $logger ?: new NullLogger;
+        $this->factory = $factory;
         $this->verbosity = $verbosity;
-        $this->commandPath = $commandPath;
+        $this->logger = $logger ?: new NullLogger;
     }
 
     public function process(Message $message, array $options)
     {
         $body = json_decode($message->getBody(), true);
-
-        if (!isset($body['arguments'])) {
-            $body['arguments'] = [];
-        }
-
-        // add verbosity
-        switch ($this->verbosity) {
-            case OutputInterface::VERBOSITY_DEBUG:
-                $body['arguments'][] = '-vvv';
-                break;
-
-            case OutputInterface::VERBOSITY_VERY_VERBOSE:
-                $body['arguments'][] = '-vv';
-                break;
-
-            case OutputInterface::VERBOSITY_VERBOSE:
-                $body['arguments'][] = '--verbose';
-                break;
-
-            case OutputInterface::VERBOSITY_QUIET:
-                $body['arguments'][] = '--quiet';
-                break;
-
-            case OutputInterface::VERBOSITY_NORMAL:
-            break;
-        }
 
         $this->logger->info('Dispatching command', $body);
 
@@ -69,23 +43,12 @@ class CommandProcessor implements ProcessorInterface
             throw new NoCommandException;
         }
 
-        $process = new Process(array_merge(
-            [
-                PHP_BINARY,
-                $this->commandPath,
-                $body['command'],
-            ],
-
-            $body['arguments']
-        ));
-
-        // a stdin is provided, let's send it to the command
-        if (isset($body['stdin'])) {
-            $process->setInput($body['stdin']);
-
-            // remove the stdin for the logs
-            unset($body['stdin']);
-        }
+        $process = $this->factory->create(
+            $body['command'],
+            $body['arguments'] ?? [],
+            $body['stdin'] ?? null,
+            $this->verbosity
+        );
 
         try {
             $process->mustRun(function ($type, $data) {

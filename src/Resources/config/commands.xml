@@ -9,7 +9,6 @@
 
         <service id="Wisembly\AmqpBundle\Command\ConsumerCommand">
             <argument type="service" id="Psr\Log\LoggerInterface" on-invalid="null" />
-            <argument key="$consolePath" /> <!-- console path, filled by extension //-->
 
             <tag name="console.command" />
             <tag name="monolog.logger" channel="amqp" />

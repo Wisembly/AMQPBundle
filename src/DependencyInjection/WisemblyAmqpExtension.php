@@ -19,7 +19,7 @@ use Wisembly\AmqpBundle\UriConnection;
 use Wisembly\AmqpBundle\BrokerInterface;
 use Wisembly\AmqpBundle\Broker\PeclBroker;
 
-use Wisembly\AmqpBundle\Command\ConsumerCommand;
+use Wisembly\AmqpBundle\Processor\ProcessFactory;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -40,9 +40,15 @@ class WisemblyAmqpExtension extends Extension
 
         $container->getParameterBag()->set('wisembly.amqp.broker', $config['broker']);
 
-        $this->registerGates($container, $loader, $config);
-        $this->registerCommands($container, $loader, $config);
+        $loader->load('amqp.xml');
+        $this->registerGates($container, $config);
 
+        $container
+            ->getDefinition(ProcessFactory::class)
+            ->replaceArgument('$consolePath', $config['console_path'])
+        ;
+
+        $loader->load('commands.xml');
         $loader->load('brokers.xml');
 
         // remove pecl broker if not available
@@ -57,10 +63,8 @@ class WisemblyAmqpExtension extends Extension
         ;
     }
 
-    private function registerGates(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
+    private function registerGates(ContainerBuilder $container, array $configuration)
     {
-        $loader->load('amqp.xml');
-
         // no default connection ? Take the first one
         if (null === $configuration['default_connection'] || !isset($configuration['connections'][$configuration['default_connection']])) {
             reset($configuration['connections']);
@@ -128,13 +132,5 @@ class WisemblyAmqpExtension extends Extension
 
             $bagDefinition->addMethodCall('add', [$gateDefinition]);
         }
-    }
-
-    private function registerCommands(ContainerBuilder $container, Loader\FileLoader $loader, array $configuration)
-    {
-        $loader->load('commands.xml');
-
-        $definition = $container->getDefinition(ConsumerCommand::class);
-        $definition->replaceArgument('$consolePath', $configuration['console_path']);
     }
 }

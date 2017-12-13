@@ -9,5 +9,9 @@
 
         <service id="Wisembly\AmqpBundle\Publisher" public="true" />
         <service id="Wisembly\AmqpBundle\GatesBag" />
+
+        <service id="Wisembly\AmqpBundle\Processor\ProcessFactory">
+            <argument key="$consolePath" />
+        </service>
     </services>
 </container>
