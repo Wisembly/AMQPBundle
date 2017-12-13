@@ -4,8 +4,10 @@ namespace Wisembly\AmqpBundle\Processor;
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
-use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Output\OutputInterface;
+
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 use Swarrot\Broker\Message;
 use Swarrot\Broker\MessageProvider\MessageProviderInterface;
@@ -103,20 +105,20 @@ class CommandProcessor implements ProcessorInterface
             unset($body['stdin']);
         }
 
-        $process->run(function ($type, $data) {
-            switch ($type) {
-                case Process::OUT:
-                    $this->logger->info($data);
-                    break;
+        try {
+            $process->mustRun(function ($type, $data) {
+                switch ($type) {
+                    case Process::OUT:
+                        $this->logger->info($data);
+                        break;
 
-                case Process::ERR:
-                    $this->logger->error($data);
-                    break;
-            }
-        });
+                    case Process::ERR:
+                        $this->logger->error($data);
+                        break;
+                }
+            });
 
-        // todo Do not ack here, let it be acked by the AckProcessor
-        if ($process->isSuccessful()) {
+            // todo Do not ack here, let it be acked by the AckProcessor
             @trigger_error(
                 \E_USER_DEPRECATED,
                 sprintf(
@@ -127,21 +129,19 @@ class CommandProcessor implements ProcessorInterface
 
             $this->logger->info('The process was successful', $body);
             $this->provider->ack($message);
-            return;
+        } catch (ProcessFailedException $e) {
+            $this->logger->error('The command failed ; aborting', ['body' => $body, 'code' => $process->getExitCodeText()]);
+
+            @trigger_error(
+                \E_USER_DEPRECATED,
+                sprintf(
+                    'From 2.0, if a process fail, it will trigger an exception and _not_ nack the message. Use the %s processor instead.',
+                    AckProcessor::class
+                )
+            );
+
+            $this->provider->nack($message, false);
         }
-
-        $code = $process->getExitCode();
-        $this->logger->error('The command failed ; aborting', ['body' => $body, 'code' => $code]);
-
-        @trigger_error(
-            \E_USER_DEPRECATED,
-            sprintf(
-                'From 2.0, if a process fail, it will trigger an exception and _not_ nack the message. Use the %s processor instead.',
-                AckProcessor::class
-            )
-        );
-
-        $this->provider->nack($message, false);
     }
 }
 
