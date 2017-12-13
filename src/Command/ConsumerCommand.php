@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 
 use Swarrot\Consumer;
 
+use Swarrot\Processor\Ack\AckProcessor;
 use Swarrot\Processor\RPC\RpcServerProcessor;
 use Swarrot\Processor\MemoryLimit\MemoryLimitProcessor;
 use Swarrot\Processor\SignalHandler\SignalHandlerProcessor;
@@ -83,15 +84,17 @@ class ConsumerCommand extends Command
             $processor = new RpcServerProcessor($processor, $producer, $this->logger);
         }
 
-        $processor = new ExceptionCatcherProcessor($processor, $this->logger);
-        $options = [];
-
+        $processor = new AckProcessor($processor, $provider, $this->logger);
         $processor = new SignalHandlerProcessor($processor, $this->logger);
+
+        $options = [];
 
         if (null !== $input->getOption('memory-limit')) {
             $processor = new MemoryLimitProcessor($processor, $this->logger);
             $options['memory_limit'] = (int) $input->getOption('memory-limit');
         }
+
+        $processor = new ExceptionCatcherProcessor($processor, $this->logger);
 
         $consumer = new Consumer($provider, $processor);
         $consumer->consume($options + [
