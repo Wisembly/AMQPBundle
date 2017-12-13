@@ -19,20 +19,26 @@ class AMQPDataCollector extends DataCollector
 
     public function __construct()
     {
-        $this->data = ['count' => 0,
-                       'messages' => []];
+        $this->data = [
+            'count' => 0,
+            'messages' => []
+        ];
     }
 
     public function collect(Request $request, Response $response, Exception $exception = null)
     {
-        $this->data = ['messages' => $this->messages,
-                       'count'    => count($this->messages)];
+        $this->data = [
+            'messages' => $this->messages,
+            'count' => count($this->messages)
+        ];
     }
 
     public function reset()
     {
-        $this->data = ['count' => 0,
-                       'messages' => []];
+        $this->data = [
+            'count' => 0,
+            'messages' => []
+        ];
     }
 
     /**
@@ -60,4 +66,3 @@ class AMQPDataCollector extends DataCollector
         return 'amqp_collector';
     }
 }
-
