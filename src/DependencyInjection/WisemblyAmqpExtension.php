@@ -43,6 +43,8 @@ class WisemblyAmqpExtension extends Extension
         $loader->load('amqp.xml');
         $this->registerGates($container, $config);
 
+        $loader->load('processors.xml');
+
         $container
             ->getDefinition(ProcessFactory::class)
             ->replaceArgument('$consolePath', $config['console_path'])

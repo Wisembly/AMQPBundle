@@ -7,7 +7,12 @@
     <services>
         <defaults public="false" autowire="true" autoconfigure="true" />
 
-        <service id="Wisembly\AmqpBundle\Publisher" public="true" />
-        <service id="Wisembly\AmqpBundle\GatesBag" />
+        <service id="Wisembly\AmqpBundle\Processor\CommandProcessor">
+            <tag name="monolog.logger" channel="amqp" />
+        </service>
+
+        <service id="Wisembly\AmqpBundle\Processor\ProcessFactory">
+            <argument key="$consolePath" />
+        </service>
     </services>
 </container>
