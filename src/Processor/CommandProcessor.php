@@ -18,9 +18,6 @@ use Swarrot\Processor\Ack\AckProcessor;
 
 class CommandProcessor implements ProcessorInterface
 {
-    /** @var MessageProviderInterface */
-    private $provider;
-
     /** @var LoggerInterface */
     private $logger;
 
@@ -33,10 +30,9 @@ class CommandProcessor implements ProcessorInterface
     /** @var string */
     private $environment;
 
-    public function __construct(LoggerInterface $logger = null, MessageProviderInterface $provider, string $commandPath, string $environment, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    public function __construct(LoggerInterface $logger = null, string $commandPath, string $environment, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
     {
         $this->logger = $logger ?: new NullLogger;
-        $this->provider = $provider;
         $this->verbosity = $verbosity;
         $this->commandPath = $commandPath;
         $this->environment = $environment;
@@ -80,19 +76,10 @@ class CommandProcessor implements ProcessorInterface
 
         $this->logger->info('Dispatching command', $body);
 
-        // if no proper command given, log it and nack
+        // if no proper command given, log it
         if (!isset($body['command'])) {
-            @trigger_error(
-                sprintf(
-                    'From 2.0, if a process fail, it will trigger an exception and _not_ nack the message. Use the %s processor instead.',
-                    AckProcessor::class
-                ),
-                \E_USER_DEPRECATED
-            );
-
             $this->logger->critical('No proper command found in message', ['body' => $body]);
-            $this->provider->nack($message, false);
-            return;
+            throw new NoCommandException;
         }
 
         $process = new Process(array_merge(
@@ -126,30 +113,11 @@ class CommandProcessor implements ProcessorInterface
                 }
             });
 
-            // todo Do not ack here, let it be acked by the AckProcessor
-            @trigger_error(
-                sprintf(
-                    'From 2.0, the message won\'t be acked on successful process. Use the %s processor instead.',
-                    AckProcessor::class
-                ),
-                \E_USER_DEPRECATED
-            );
-
             $this->logger->info('The process was successful', $body);
-            $this->provider->ack($message);
         } catch (ProcessFailedException $e) {
             $this->logger->error('The command failed ; aborting', ['body' => $body, 'code' => $process->getExitCodeText()]);
 
-            @trigger_error(
-                sprintf(
-                    'From 2.0, if a process fail, it will trigger an exception and _not_ nack the message. Use the %s processor instead.',
-                    AckProcessor::class
-                ),
-                \E_USER_DEPRECATED
-            );
-
-            $this->provider->nack($message, false);
+            throw new CommandFailureException($body, $process, $e);
         }
     }
 }
-

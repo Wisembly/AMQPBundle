@@ -78,7 +78,6 @@ class ConsumerCommand extends Command
 
         $processor = new CommandProcessor(
             $this->logger,
-            $provider,
             $this->consolePath,
             $input->hasOption('env') ? $input->getOption('env') : null,
             true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity()
