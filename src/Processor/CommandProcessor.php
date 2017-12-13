@@ -10,9 +10,6 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 use Swarrot\Broker\Message;
-use Swarrot\Broker\MessageProvider\MessageProviderInterface;
-use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
-
 use Swarrot\Processor\ProcessorInterface;
 use Swarrot\Processor\Ack\AckProcessor;
 
@@ -27,15 +24,11 @@ class CommandProcessor implements ProcessorInterface
     /** @var int */
     private $verbosity;
 
-    /** @var string */
-    private $environment;
-
-    public function __construct(LoggerInterface $logger = null, string $commandPath, string $environment, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    public function __construct(LoggerInterface $logger = null, string $commandPath, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
     {
         $this->logger = $logger ?: new NullLogger;
         $this->verbosity = $verbosity;
         $this->commandPath = $commandPath;
-        $this->environment = $environment;
     }
 
     public function process(Message $message, array $options)
@@ -44,12 +37,6 @@ class CommandProcessor implements ProcessorInterface
 
         if (!isset($body['arguments'])) {
             $body['arguments'] = [];
-        }
-
-        // add environment
-        if (null !== $this->environment) {
-            $body['arguments'][] = '--env';
-            $body['arguments'][] = $this->environment;
         }
 
         // add verbosity
