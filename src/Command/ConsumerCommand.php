@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 
 use Swarrot\Consumer;
 
+use Swarrot\Processor\Ack\AckProcessor;
 use Swarrot\Processor\RPC\RpcServerProcessor;
 use Swarrot\Processor\MemoryLimit\MemoryLimitProcessor;
 use Swarrot\Processor\SignalHandler\SignalHandlerProcessor;
@@ -23,6 +24,8 @@ use Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor;
 
 use Wisembly\AmqpBundle\GatesBag;
 use Wisembly\AmqpBundle\BrokerInterface;
+
+use Wisembly\AmqpBundle\Processor\ProcessFactory;
 use Wisembly\AmqpBundle\Processor\CommandProcessor;
 
 /**
@@ -43,14 +46,14 @@ class ConsumerCommand extends Command
     /** @var BrokerInterface */
     private $broker;
 
-    /** @var string */
-    private $consolePath;
+    /** @var CommandProcessor */
+    private $processor;
 
-    public function __construct(?LoggerInterface $logger, BrokerInterface $broker, GatesBag $gates, string $consolePath)
+    public function __construct(?LoggerInterface $logger, BrokerInterface $broker, GatesBag $gates, CommandProcessor $processor)
     {
         $this->gates = $gates;
         $this->broker = $broker;
-        $this->consolePath = $consolePath;
+        $this->processor = $processor;
         $this->logger = $logger ?: new NullLogger;
 
         parent::__construct();
@@ -75,32 +78,28 @@ class ConsumerCommand extends Command
         $gate = $this->gates->get($gate);
 
         $provider = $this->broker->getProvider($gate);
+        $processor = $this->processor;
 
-        $processor = new CommandProcessor(
-            $this->logger,
-            $this->consolePath,
-            $input->hasOption('env') ? $input->getOption('env') : null,
-            true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity()
-        );
-
-        // if we want a rpc mechanism, let's wrap a rpc server processor
         if (true === $input->getOption('rpc')) {
             $processor = new RpcServerProcessor($processor, $producer, $this->logger);
         }
 
-        // Wrap processor in an Swarrot ExceptionCatcherProcessor to avoid breaking processor if an error occurs
-        $processor = new ExceptionCatcherProcessor($processor, $this->logger);
-        $options = [];
-
+        $processor = new AckProcessor($processor, $provider, $this->logger);
         $processor = new SignalHandlerProcessor($processor, $this->logger);
 
-        // we apply a memory limit to the consumer
+        $options = [
+            'poll_interval' => $input->getOption('poll-interval'),
+            'verbosity' => true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity(),
+        ];
+
         if (null !== $input->getOption('memory-limit')) {
             $processor = new MemoryLimitProcessor($processor, $this->logger);
             $options['memory_limit'] = (int) $input->getOption('memory-limit');
         }
 
+        $processor = new ExceptionCatcherProcessor($processor, $this->logger);
+
         $consumer = new Consumer($provider, $processor);
-        $consumer->consume(['poll_interval' => $input->getOption('poll-interval')]);
+        $consumer->consume($options);
     }
 }

@@ -7,15 +7,12 @@
     <services>
         <defaults public="false" autowire="true" autoconfigure="true" />
 
-        <service id="Wisembly\AmqpBundle\Command\ConsumerCommand">
-            <argument type="service" id="Psr\Log\LoggerInterface" on-invalid="null" />
-
-            <tag name="console.command" />
+        <service id="Wisembly\AmqpBundle\Processor\CommandProcessor">
             <tag name="monolog.logger" channel="amqp" />
         </service>
 
-        <service id="Wisembly\AmqpBundle\Command\PublishCommand">
-            <tag name="console.command" />
+        <service id="Wisembly\AmqpBundle\Processor\ProcessFactory">
+            <argument key="$consolePath" />
         </service>
     </services>
 </container>

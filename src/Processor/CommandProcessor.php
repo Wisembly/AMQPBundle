@@ -5,74 +5,33 @@ use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 use Swarrot\Broker\Message;
-use Swarrot\Broker\MessageProvider\MessageProviderInterface;
-use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
 
 use Swarrot\Processor\ProcessorInterface;
-use Swarrot\Processor\Ack\AckProcessor;
+use Swarrot\Processor\ConfigurableInterface;
 
-class CommandProcessor implements ProcessorInterface
+class CommandProcessor implements ProcessorInterface, ConfigurableInterface
 {
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var string path to the sf console */
-    private $commandPath;
+    /** @var ProcessFactory */
+    private $factory;
 
-    /** @var int */
-    private $verbosity;
-
-    /** @var string */
-    private $environment;
-
-    public function __construct(LoggerInterface $logger = null, string $commandPath, string $environment, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    public function __construct(LoggerInterface $logger = null, ProcessFactory $factory)
     {
+        $this->factory = $factory;
         $this->logger = $logger ?: new NullLogger;
-        $this->verbosity = $verbosity;
-        $this->commandPath = $commandPath;
-        $this->environment = $environment;
     }
 
     public function process(Message $message, array $options)
     {
         $body = json_decode($message->getBody(), true);
-
-        if (!isset($body['arguments'])) {
-            $body['arguments'] = [];
-        }
-
-        // add environment
-        if (null !== $this->environment) {
-            $body['arguments'][] = '--env';
-            $body['arguments'][] = $this->environment;
-        }
-
-        // add verbosity
-        switch ($this->verbosity) {
-            case OutputInterface::VERBOSITY_DEBUG:
-                $body['arguments'][] = '-vvv';
-                break;
-
-            case OutputInterface::VERBOSITY_VERY_VERBOSE:
-                $body['arguments'][] = '-vv';
-                break;
-
-            case OutputInterface::VERBOSITY_VERBOSE:
-                $body['arguments'][] = '--verbose';
-                break;
-
-            case OutputInterface::VERBOSITY_QUIET:
-                $body['arguments'][] = '--quiet';
-                break;
-
-            case OutputInterface::VERBOSITY_NORMAL:
-            break;
-        }
 
         $this->logger->info('Dispatching command', $body);
 
@@ -82,23 +41,12 @@ class CommandProcessor implements ProcessorInterface
             throw new NoCommandException;
         }
 
-        $process = new Process(array_merge(
-            [
-                PHP_BINARY,
-                $this->commandPath,
-                $body['command'],
-            ],
-
-            $body['arguments']
-        ));
-
-        // a stdin is provided, let's send it to the command
-        if (isset($body['stdin'])) {
-            $process->setInput($body['stdin']);
-
-            // remove the stdin for the logs
-            unset($body['stdin']);
-        }
+        $process = $this->factory->create(
+            $body['command'],
+            $body['arguments'] ?? [],
+            $body['stdin'] ?? null,
+            $options['verbosity']
+        );
 
         try {
             $process->mustRun(function ($type, $data) {
@@ -119,5 +67,18 @@ class CommandProcessor implements ProcessorInterface
 
             throw new CommandFailureException($body, $process, $e);
         }
+    }
+
+    public function setDefaultOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefault('verbosity', OutputInterface::VERBOSITY_NORMAL);
+
+        $resolver->setAllowedValues('verbosity', [
+            OutputInterface::VERBOSITY_QUIET,
+            OutputInterface::VERBOSITY_NORMAL,
+            OutputInterface::VERBOSITY_VERBOSE,
+            OutputInterface::VERBOSITY_VERY_VERBOSE,
+            OutputInterface::VERBOSITY_DEBUG,
+        ]);
     }
 }
