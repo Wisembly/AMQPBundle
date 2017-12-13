@@ -31,7 +31,7 @@ class CommandProcessor implements ProcessorInterface
     /** @var string */
     private $environment;
 
-    public function __construct(LoggerInterface $logger = null, MessageProviderInterface $provider, string $commandPath, string $environment, $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    public function __construct(LoggerInterface $logger = null, MessageProviderInterface $provider, string $commandPath, string $environment, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
     {
         $this->logger = $logger ?: new NullLogger;
         $this->provider = $provider;
