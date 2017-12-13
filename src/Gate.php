@@ -72,7 +72,7 @@ class Gate
         return $this->key;
     }
 
-    public function getConnection(): string
+    public function getConnection(): Connection
     {
         return $this->connection;
     }
