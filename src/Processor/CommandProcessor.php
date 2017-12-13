@@ -38,8 +38,6 @@ class CommandProcessor implements ProcessorInterface
         $this->verbosity = $verbosity;
         $this->commandPath = $commandPath;
         $this->environment = $environment;
-
-        $this->builder->setTimeout(null);
     }
 
     public function process(Message $message, array $options)
