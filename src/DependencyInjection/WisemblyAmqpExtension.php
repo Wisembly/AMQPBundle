@@ -38,8 +38,6 @@ class WisemblyAmqpExtension extends Extension
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
-        $container->getParameterBag()->set('wisembly.amqp.broker', $config['broker']);
-
         $loader->load('amqp.xml');
         $this->registerGates($container, $config);
 
