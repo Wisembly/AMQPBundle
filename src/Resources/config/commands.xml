@@ -10,12 +10,12 @@
         <service id="Wisembly\AmqpBundle\Command\ConsumerCommand">
             <argument type="service" id="Psr\Log\LoggerInterface" on-invalid="null" />
 
-            <tag name="console.command" />
+            <tag name="console.command" command="wisembly:amqp:consume" />
             <tag name="monolog.logger" channel="amqp" />
         </service>
 
         <service id="Wisembly\AmqpBundle\Command\PublishCommand">
-            <tag name="console.command" />
+            <tag name="console.command" command="wisembly:amqp:publish" />
         </service>
     </services>
 </container>
