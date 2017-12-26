@@ -23,7 +23,7 @@ class CommandProcessor implements ProcessorInterface, ConfigurableInterface
     /** @var ProcessFactory */
     private $factory;
 
-    public function __construct(LoggerInterface $logger = null, ProcessFactory $factory)
+    public function __construct(?LoggerInterface $logger, ProcessFactory $factory)
     {
         $this->factory = $factory;
         $this->logger = $logger ?: new NullLogger;
