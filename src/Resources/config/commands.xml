@@ -8,11 +8,11 @@
         <defaults public="false" autowire="true" autoconfigure="true" />
 
         <service id="Wisembly\AmqpBundle\Command\ConsumerCommand">
-            <tag name="console.command" command="wisembly:amqp:consume" />
+            <tag name="console.command" command="amqp:consume" />
         </service>
 
         <service id="Wisembly\AmqpBundle\Command\PublishCommand">
-            <tag name="console.command" command="wisembly:amqp:publish" />
+            <tag name="console.command" command="amqp:publish" />
         </service>
     </services>
 </container>

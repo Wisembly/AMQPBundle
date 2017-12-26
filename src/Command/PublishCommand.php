@@ -32,16 +32,20 @@ class PublishCommand extends Command
         $this->gates = $gates;
         $this->publisher = $publisher;
 
-        parent::__construct();
+        parent::__construct('amqp:publish');
     }
 
     protected function configure()
     {
-        $this->setName('wisembly:amqp:publish')
-             ->setDescription('Publish a message in an AMQP gate');
+        $this
+            ->setAliases(['wisembly:amqp:publish'])
+            ->setDescription('Publish a message in an AMQP gate')
+        ;
 
-        $this->addArgument('gate', InputArgument::REQUIRED, 'AMQP Gate to use')
-             ->addArgument('message', InputArgument::REQUIRED, 'message string');
+        $this
+            ->addArgument('gate', InputArgument::REQUIRED, 'AMQP Gate to use')
+            ->addArgument('message', InputArgument::REQUIRED, 'message string')
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
