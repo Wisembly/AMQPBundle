@@ -7,6 +7,10 @@
     <services>
         <defaults public="false" autowire="true" autoconfigure="true" />
 
+        <service id="Wisembly\AmqpBundle\Processor\ConsumerFactory">
+            <tag name="monolog.logger" channel="amqp" />
+        </service>
+
         <service id="Wisembly\AmqpBundle\Publisher" public="true" />
         <service id="Wisembly\AmqpBundle\GatesBag" />
     </services>
