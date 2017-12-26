@@ -86,6 +86,8 @@ class ConsumerCommand extends Command
 
         // if we want a rpc mechanism, let's wrap a rpc server processor
         if (true === $input->getOption('rpc')) {
+            $producer = $this->broker->getProducer($gate);
+
             $processor = new RpcServerProcessor($processor, $producer, $this->logger);
         }
 
