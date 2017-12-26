@@ -33,9 +33,7 @@ class WisemblyAmqpExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
-        $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
-
+        $config = $this->getConfig($configs);
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $loader->load('amqp.xml');
@@ -61,6 +59,11 @@ class WisemblyAmqpExtension extends Extension
         $container->registerForAutoconfiguration(BrokerInterface::class)
             ->addTag('wisembly.amqp.broker')
         ;
+    }
+
+    public function getConfig(array $configs): array
+    {
+        return $this->processConfiguration(new Configuration, $configs);
     }
 
     private function registerGates(ContainerBuilder $container, array $configuration)

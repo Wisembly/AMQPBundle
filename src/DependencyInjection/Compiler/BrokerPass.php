@@ -8,10 +8,7 @@ use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
-use Symfony\Component\Config\Definition\Processor;
-
 use Wisembly\AmqpBundle\BrokerInterface;
-use Wisembly\AmqpBundle\DependencyInjection\Configuration;
 
 /**
  * Determine and instanciate which RabbitMq Broker to use
@@ -36,11 +33,8 @@ class BrokerPass implements CompilerPassInterface
 
         // a bit copied from the extension, but no choice here to retrieve the config
         // without going through parameters...
-        $extension = $container->getExtension('wisembly_amqp');
         $configs = $container->getExtensionConfig('wisembly_amqp');
-
-        $processor = new Processor;
-        $config = $processor->processConfiguration(new Configuration, $configs);
+        $config = $container->getExtension('wisembly_amqp')->getConfig($configs);
 
         if (!isset($brokers[$config['broker']])) {
             throw new InvalidArgumentException(sprintf('Invalid broker "%s". Expected one of those : [%s]', $config['broker'], implode(', ', array_keys($brokers))));
