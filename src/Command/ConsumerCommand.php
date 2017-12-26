@@ -1,33 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 namespace Wisembly\AmqpBundle\Command;
 
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 
-use Symfony\Component\Console\Exception\LogicException;
-use Symfony\Component\Console\Exception\InvalidArgumentException;
-
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
-use Psr\Log\NullLogger;
-use Psr\Log\LoggerInterface;
-
-use Swarrot\Consumer;
-
-use Swarrot\Processor\Ack\AckProcessor;
-use Swarrot\Processor\RPC\RpcServerProcessor;
-use Swarrot\Processor\Stack\StackedProcessor;
-use Swarrot\Processor\MemoryLimit\MemoryLimitProcessor;
-use Swarrot\Processor\SignalHandler\SignalHandlerProcessor;
-use Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor;
-
 use Wisembly\AmqpBundle\GatesBag;
-use Wisembly\AmqpBundle\BrokerInterface;
-
-use Wisembly\AmqpBundle\Processor\ProcessFactory;
-use Wisembly\AmqpBundle\Processor\CommandProcessor;
+use Wisembly\AmqpBundle\Processor\ConsumerFactory;
 
 /**
  * RabbitMQ Consumer
@@ -38,24 +20,16 @@ use Wisembly\AmqpBundle\Processor\CommandProcessor;
  */
 class ConsumerCommand extends Command
 {
-    /** @var LoggerInterface $logger */
-    private $logger;
-
     /** @var GatesBag */
     private $gates;
 
-    /** @var BrokerInterface */
-    private $broker;
+    /** @var ConsumerFactory */
+    private $factory;
 
-    /** @var CommandProcessor */
-    private $processor;
-
-    public function __construct(?LoggerInterface $logger, BrokerInterface $broker, GatesBag $gates, CommandProcessor $processor)
+    public function __construct(GatesBag $gates, ConsumerFactory $factory)
     {
         $this->gates = $gates;
-        $this->broker = $broker;
-        $this->processor = $processor;
-        $this->logger = $logger ?: new NullLogger;
+        $this->factory = $factory;
 
         parent::__construct();
     }
@@ -78,42 +52,15 @@ class ConsumerCommand extends Command
         $gate = $input->getArgument('gate');
         $gate = $this->gates->get($gate);
 
-        $provider = $this->broker->getProvider($gate);
-
-        $processor = $this->processor;
-        $middlewares = [$processor];
-
-        if (true === $input->getOption('rpc')) {
-            $producer = $this->broker->getProducer($gate);
-
-            $processor = new RpcServerProcessor($processor, $producer, $this->logger);
-            $middlewares[] = $processor;
-        }
-
-        $processor = new AckProcessor($processor, $provider, $this->logger);
-        $middlewares[] = $processor;
-
-        $processor = new SignalHandlerProcessor($processor, $this->logger);
-        $middlewares[] = $processor;
-
         $options = [
+            'memory_limit' => $input->getOption('memory-limit'),
             'poll_interval' => $input->getOption('poll-interval'),
-            'verbosity' => true === $input->getOption('disable-verbosity-propagation') ? OutputInterface::VERBOSITY_QUIET : $output->getVerbosity(),
+            'verbosity' => true === $input->getOption('disable-verbosity-propagation')
+                ? OutputInterface::VERBOSITY_QUIET
+                : $output->getVerbosity(),
         ];
 
-        if (null !== $input->getOption('memory-limit')) {
-            $processor = new MemoryLimitProcessor($processor, $this->logger);
-            $middlewares[] = $processor;
-
-            $options['memory_limit'] = (int) $input->getOption('memory-limit');
-        }
-
-        $processor = new ExceptionCatcherProcessor($processor, $this->logger);
-        $middlewares[] = $processor;
-
-        $processor = new StackedProcessor($processor, $middlewares);
-
-        $consumer = new Consumer($provider, $processor);
+        $consumer = $this->factory->getConsumer($gate);
         $consumer->consume($options);
     }
 }
