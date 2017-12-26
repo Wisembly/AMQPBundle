@@ -79,10 +79,13 @@ class ConsumerCommand extends Command
         $gate = $this->gates->get($gate);
 
         $provider = $this->broker->getProvider($gate);
+
         $processor = $this->processor;
         $middlewares = [$processor];
 
         if (true === $input->getOption('rpc')) {
+            $producer = $this->broker->getProducer($gate);
+
             $processor = new RpcServerProcessor($processor, $producer, $this->logger);
             $middlewares[] = $processor;
         }
