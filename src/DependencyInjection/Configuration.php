@@ -118,6 +118,10 @@ class Configuration implements ConfigurationInterface
                                 ->end()
                             ->end()
                         ->end()
+                        ->validate()
+                        ->ifTrue(function ($v) { return !isset($v['host']) && !isset($v['uri']); })
+                            ->thenInvalid('Each connection must have at least a uri or a host, none given')
+                        ->end()
                     ->end()
                 ->end()
 

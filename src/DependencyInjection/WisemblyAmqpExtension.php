@@ -86,10 +86,6 @@ class WisemblyAmqpExtension extends Extension
         $connections = [];
 
         foreach ($configuration['connections'] as $name => $connection) {
-            if (!isset($connection['host']) && !isset($connection['uri'])) {
-                throw new InvalidArgumentException('Either an URI or a host should be given for a connection');
-            }
-
             if (isset($connection['uri'])) {
                 $connections[$name] = new Definition(UriConnection::class);
 
