@@ -37,7 +37,7 @@ class UriConnection extends Connection
         }
 
         if (!in_array(strtolower($parse['scheme']), ['amqp', 'amqps'])) {
-            throw new InvalidArgumentException(sprintf('Invalid scheme. Expected "amqp(s)", had "%s"', $parse['scheme']));
+            throw new InvalidArgumentException("Invalid scheme. Expected 'amqp(s)', had '{$parse['scheme']}'");
         }
 
         if (isset($parse['path'], $parse['path'][0]) && '/' === $parse['path'][0]) {
