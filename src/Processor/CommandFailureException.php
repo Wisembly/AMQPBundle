@@ -21,7 +21,7 @@ final class CommandFailureException extends RuntimeException implements AmqpExce
         $this->process = $process;
 
         parent::__construct(
-            "The command \"{$process->getCommandLine()}\" failed {Error: \"{$process->getExitCodeText()}\")",
+            "The command \"{$process->getCommandLine()}\" failed (Error: \"{$process->getExitCodeText()}\")",
             $process->getExitCode(),
             $previous
         );
