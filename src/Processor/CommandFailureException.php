@@ -15,7 +15,7 @@ final class CommandFailureException extends RuntimeException implements AmqpExce
     /** @var Process */
     private $process;
 
-    public function __construct(array $body, int $code, Throwable $previous = null)
+    public function __construct(array $body, Process $process, Throwable $previous = null)
     {
         $this->body = $body;
         $this->process = $process;
