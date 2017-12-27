@@ -21,17 +21,11 @@ class MessagingListener implements EventSubscriberInterface
 
     public function onMessageSent(MessagePublishedEvent $event)
     {
-        $gate = $event->getGate();
-        $routingKey = null === $gate->getRoutingKey() ? '' : sprintf(' : %s', $gate->getRoutingKey());
-
-        $this->collector->addMessage([
-            'gate' => $gate->getName(),
-            'message' => $event->getMessage(),
-            'connection' => $gate->getConnection(),
-            'published_at' => $event->getPublishedAt(),
-            'exchange' => "{$gate->getExchange()}{$routingKey}",
-        ]);
-
+        $this->collector->addMessage(
+            $event->getGate(),
+            $event->getMessage(),
+            $event->getPublishedAt()
+        );
     }
 }
 
