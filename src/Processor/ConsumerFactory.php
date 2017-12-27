@@ -2,6 +2,7 @@
 namespace Wisembly\AmqpBundle\Processor;
 
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 use Swarrot\Consumer;
 
