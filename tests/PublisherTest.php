@@ -5,12 +5,10 @@ use PHPUnit\Framework\TestCase;
 
 use Prophecy\Argument;
 
-use Swarrot\Broker\Message;
-use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
-
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-use Wisembly\AmqpBundle\EventListener\MessagePublishedEvent;
+use Swarrot\Broker\Message;
+use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
 
 class PublisherTest extends TestCase
 {

@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Wisembly\AmqpBundle\EventListener;
+namespace Wisembly\AmqpBundle\DataCollector;
 
 use Datetime;
 use DatetimeInterface;
@@ -8,19 +8,20 @@ use PHPUnit\Framework\TestCase;
 
 use Prophecy\Argument;
 
-use Wisembly\AmqpBundle\DataCollector\AMQPDataCollector;
 use Swarrot\Broker\Message;
-use Wisembly\AmqpBundle\UriConnection;
-use Wisembly\AmqpBundle\Gate;
 
-class MessagingListenerTest extends TestCase
+use Wisembly\AmqpBundle\Gate;
+use Wisembly\AmqpBundle\UriConnection;
+use Wisembly\AmqpBundle\MessagePublishedEvent;
+
+class CollectorInjectorTest extends TestCase
 {
     public function test_the_listener_can_be_instantiated(): void
     {
         $collector = $this->prophesize(AMQPDataCollector::class);
-        $listener = new MessagingListener($collector->reveal());
+        $listener = new CollectorInjector($collector->reveal());
 
-        $this->assertInstanceOf(MessagingListener::class, $listener);
+        $this->assertInstanceOf(CollectorInjector::class, $listener);
     }
 
     public function test_it_adds_a_message_in_the_collector_on_published_event()
@@ -40,7 +41,7 @@ class MessagingListenerTest extends TestCase
             Argument::type(DatetimeInterface::class)
         )->shouldBeCalled();
 
-        $listener = new MessagingListener($collector->reveal());
+        $listener = new CollectorInjector($collector->reveal());
         $listener->onMessageSent($event);
     }
 }

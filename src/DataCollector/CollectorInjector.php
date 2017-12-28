@@ -1,11 +1,12 @@
 <?php
-namespace Wisembly\AmqpBundle\EventListener;
+namespace Wisembly\AmqpBundle\DataCollector;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 use Wisembly\AmqpBundle\DataCollector\AMQPDataCollector;
+use Wisembly\AmqpBundle\MessagePublishedEvent;
 
-class MessagingListener implements EventSubscriberInterface
+class CollectorInjector implements EventSubscriberInterface
 {
     private $collector;
 

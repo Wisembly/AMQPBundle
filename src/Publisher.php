@@ -2,9 +2,10 @@
 namespace Wisembly\AmqpBundle;
 
 use Datetime;
-use Swarrot\Broker\Message;
-use Wisembly\AmqpBundle\EventListener\MessagePublishedEvent;
+
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+use Swarrot\Broker\Message;
 
 /**
  * Publisher for AMQP Messages
