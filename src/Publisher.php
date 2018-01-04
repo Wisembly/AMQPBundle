@@ -20,15 +20,26 @@ class Publisher
     /** @var BrokerInterface */
     private $broker;
 
+    /** @var GatesBag */
+    private $bag;
+
     /** @param array $gates Gates registered in our config */
-    public function __construct(EventDispatcherInterface $dispatcher, BrokerInterface $broker)
+    public function __construct(EventDispatcherInterface $dispatcher, BrokerInterface $broker, GatesBag $bag)
     {
+        $this->bag = $bag;
         $this->broker = $broker;
         $this->dispatcher = $dispatcher;
     }
 
-    public function publish(Message $message, Gate $gate): void
+    /**
+     * @param Gate|string $gate Gate to use. If string, will try to fetch it from the gates bag.
+     */
+    public function publish(Message $message, $gate): void
     {
+        if (!$gate instanceof Gate) {
+            $gate = $this->bag->get($gate);
+        }
+
         $provider = $this->broker->getProducer($gate);
         $provider->publish($message, $gate->getRoutingKey());
 
