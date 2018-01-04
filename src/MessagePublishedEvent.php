@@ -1,5 +1,5 @@
 <?php
-namespace Wisembly\AmqpBundle\EventListener;
+namespace Wisembly\AmqpBundle;
 
 use Datetime;
 
