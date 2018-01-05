@@ -47,6 +47,11 @@ class Configuration implements ConfigurationInterface
                     ->isRequired()
                 ->end()
 
+                ->scalarNode('logger_channel')
+                    ->info('Logger channel to use when a logger is required')
+                    ->defaultValue('amqp')
+                ->end()
+
                 ->arrayNode('connections')
                     ->info('Connections to AMQP to use')
                     ->useAttributeAsKey('name')
