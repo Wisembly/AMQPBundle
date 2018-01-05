@@ -34,6 +34,9 @@ wisembly_amqp:
     # Path to sf console binary
     console_path:         ~ # Required
 
+    # Logger channel to use when a logger is required
+    logger_channel:       amqp
+
     # Connections to AMQP to use
     connections:          # Required
 
