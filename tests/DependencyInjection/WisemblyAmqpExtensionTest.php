@@ -8,8 +8,12 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Wisembly\AmqpBundle\GatesBag;
 use Wisembly\AmqpBundle\Connection;
 use Wisembly\AmqpBundle\UriConnection;
+
 use Wisembly\AmqpBundle\BrokerInterface;
 use Wisembly\AmqpBundle\Broker\PeclBroker;
+
+use Wisembly\AmqpBundle\Processor\ConsumerFactory;
+use Wisembly\AmqpBundle\Processor\CommandProcessor;
 
 class WisemblyAmqpExtensionTest extends TestCase
 {
@@ -116,7 +120,23 @@ class WisemblyAmqpExtensionTest extends TestCase
         }
     }
 
-    private function getContainer(array $config = [])
+    public function test_it_changes_the_monolog_tag()
+    {
+        $container = $this->getContainer([
+            'logger_channel' => 'foo'
+        ]);
+
+        foreach ([CommandProcessor::class, ConsumerFactory::class] as $service) {
+            $def = $container->getDefinition($service);
+            $tags = $def->getTag('monolog.logger');
+
+            foreach ($tags as $attributes) {
+                $this->assertSame('foo', $attributes['channel']);
+            }
+        }
+    }
+
+    private function getContainer(array $config = []): ContainerBuilder
     {
         $broker = $this->prophesize(BrokerInterface::class)->reveal();
 
