@@ -20,6 +20,8 @@ use Wisembly\AmqpBundle\BrokerInterface;
 use Wisembly\AmqpBundle\Broker\PeclBroker;
 
 use Wisembly\AmqpBundle\Processor\ProcessFactory;
+use Wisembly\AmqpBundle\Processor\ConsumerFactory;
+use Wisembly\AmqpBundle\Processor\CommandProcessor;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -59,6 +61,18 @@ class WisemblyAmqpExtension extends Extension
         $container->registerForAutoconfiguration(BrokerInterface::class)
             ->addTag('wisembly.amqp.broker')
         ;
+
+        // dynamically change the monolog.logger tag
+        foreach ([ConsumerFactory::class, CommandProcessor::class] as $service) {
+            $def = $container->getDefinition($service);
+            $tags = $def->getTag('monolog.logger');
+            $def->clearTag('monolog.logger');
+
+            foreach ($tags as $attributes) {
+                $attributes['channel'] = $config['logger_channel'];
+                $def->addTag('monolog.logger', $attributes);
+            }
+        }
     }
 
     public function getConfig(array $configs): array
