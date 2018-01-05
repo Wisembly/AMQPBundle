@@ -116,13 +116,7 @@ that can be understood by the `CommandProcessor` :
 ```php
 use Swarrot\Broker\Message;
 
-use Wisembly\AmqpBundle\GatesBag;
 use Wisembly\AmqpBundle\Publisher;
-
-// let's say $gates contains the GatesBag service, and
-// $publisher contains the Publisher service
-
-$gate = $gates['my_gate'];
 
 $message = new Message(json_encode([
     'command' => 'symfony:command:to:run',
@@ -135,7 +129,8 @@ $message = new Message(json_encode([
     ]
 ]));
 
-$publisher->publish($message, $gate);
+$publisher->publish($message, 'my_gate');
+// or $publisher->publish($message, $gate); with `$gate` an instanceof Gate
 ```
 
 Your message is then ready to be consumed by the consumer. But, if you don't
