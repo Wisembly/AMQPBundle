@@ -114,13 +114,12 @@ and then use the `Wisembly\AmqpBundle\Publisher` service to publish a message
 that can be understood by the `CommandProcessor` :
 
 ```php
-use Swarrot\Broker\Message;
-
+use Wisembly\AmqpBundle\Message;
 use Wisembly\AmqpBundle\Publisher;
 
-$message = new Message(json_encode([
-    'command' => 'symfony:command:to:run',
-    'arguments' => [
+$message = new Message(
+    'symfony:command:to:run',
+    [
         'list',
         'of',
         'arguments'
@@ -128,6 +127,9 @@ $message = new Message(json_encode([
         'options'
     ]
 ]));
+
+// Using swarrot's Swarrot\Broker\Message is also possible if you don't plan on
+// consuming the message through the provider consumer
 
 $publisher->publish($message, 'my_gate');
 // or $publisher->publish($message, $gate); with `$gate` an instanceof Gate

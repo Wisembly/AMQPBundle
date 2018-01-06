@@ -5,7 +5,7 @@ use Datetime;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-use Swarrot\Broker\Message;
+use Swarrot\Broker\Message as SwarrotMessage;
 
 /**
  * Publisher for AMQP Messages
@@ -34,7 +34,7 @@ class Publisher
     /**
      * @param Gate|string $gate Gate to use. If string, will try to fetch it from the gates bag.
      */
-    public function publish(Message $message, $gate): void
+    public function publish(SwarrotMessage $message, $gate): void
     {
         if (!$gate instanceof Gate) {
             $gate = $this->bag->get($gate);

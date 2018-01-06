@@ -5,7 +5,7 @@ use Datetime;
 
 use Symfony\Component\EventDispatcher\Event;
 
-use Swarrot\Broker\Message;
+use Swarrot\Broker\Message as SwarrotMessage;
 
 use Wisembly\AmqpBundle\Gate;
 
@@ -18,7 +18,7 @@ class MessagePublishedEvent extends Event
 {
     const NAME = 'message.published';
 
-    /** @var Message */
+    /** @var SwarrotMessage */
     private $message;
 
     /** @var Datetime */
@@ -27,20 +27,18 @@ class MessagePublishedEvent extends Event
     /** @var Gate */
     private $gate;
 
-    public function __construct(Message $message, Datetime $publishedAt, Gate $gate)
+    public function __construct(SwarrotMessage $message, Datetime $publishedAt, Gate $gate)
     {
         $this->gate        = $gate;
         $this->message     = $message;
         $this->publishedAt = $publishedAt;
     }
 
-    /** @return Message */
-    public function getMessage(): Message
+    public function getMessage(): SwarrotMessage
     {
         return $this->message;
     }
 
-    /** @return Gate */
     public function getGate(): Gate
     {
         return $this->gate;

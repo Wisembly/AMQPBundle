@@ -7,7 +7,7 @@ use Prophecy\Argument;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-use Swarrot\Broker\Message;
+use Swarrot\Broker\Message as SwarrotMessage;
 use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
 
 class PublisherTest extends TestCase
@@ -25,7 +25,7 @@ class PublisherTest extends TestCase
 
     public function test_publisher_publishes_messages_and_dispatch_event(): void
     {
-        $message = new Message;
+        $message = new SwarrotMessage;
 
         $connection = new UriConnection('foo', 'amqp://localhost');
         $gate = new Gate($connection, 'foo', 'bar', 'baz');
@@ -55,7 +55,7 @@ class PublisherTest extends TestCase
 
     public function test_publisher_accepts_Gate(): void
     {
-        $message = new Message;
+        $message = new SwarrotMessage;
 
         $connection = new UriConnection('foo', 'amqp://localhost');
         $gate = new Gate($connection, 'foo', 'bar', 'baz');
