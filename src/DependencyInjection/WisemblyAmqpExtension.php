@@ -51,6 +51,8 @@ class WisemblyAmqpExtension extends Extension
         $loader->load('commands.xml');
         $loader->load('brokers.xml');
 
+        $container->setParameter('wisembly.amqp.config.broker', $config['broker']);
+
         // remove pecl broker if not available
         if (!extension_loaded('amqp')) {
             $container->removeDefinition(PeclBroker::class);
