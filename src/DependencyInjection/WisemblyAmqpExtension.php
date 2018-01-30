@@ -55,6 +55,7 @@ class WisemblyAmqpExtension extends Extension
         if (!extension_loaded('amqp')) {
             $container->removeDefinition(PeclBroker::class);
         }
+        $this->registerBroker($container, $config);
 
         $loader->load('profiler.xml');
 
@@ -145,5 +146,26 @@ class WisemblyAmqpExtension extends Extension
 
             $bagDefinition->addMethodCall('add', [$gateDefinition]);
         }
+    }
+
+    private function registerBroker(ContainerBuilder $container, array $configuration): void
+    {
+        $brokers = [];
+
+        foreach ($container->findTaggedServiceIds('wisembly.amqp.broker') as $id => $tags) {
+            $brokers[$id] = $id;
+
+            foreach ($tags as $tag) {
+                if (isset($tag['alias'])) {
+                    $brokers[$tag['alias']] = &$brokers[$id];
+                }
+            }
+        }
+
+        if (!isset($brokers[$configuration['broker']])) {
+            throw new InvalidArgumentException(sprintf('Invalid broker "%s". Expected one of those : [%s]', $configuration['broker'], implode(', ', array_keys($brokers))));
+        }
+
+        $container->setAlias(BrokerInterface::class, $brokers[$configuration['broker']]);
     }
 }
