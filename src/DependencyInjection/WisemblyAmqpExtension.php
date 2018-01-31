@@ -35,7 +35,7 @@ class WisemblyAmqpExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
-        $config = $this->getConfig($configs);
+        $config = $this->processConfiguration(new Configuration, $configs);
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $loader->load('amqp.xml');
@@ -75,11 +75,6 @@ class WisemblyAmqpExtension extends Extension
                 $def->addTag('monolog.logger', $attributes);
             }
         }
-    }
-
-    public function getConfig(array $configs): array
-    {
-        return $this->processConfiguration(new Configuration, $configs);
     }
 
     private function registerGates(ContainerBuilder $container, array $configuration)
