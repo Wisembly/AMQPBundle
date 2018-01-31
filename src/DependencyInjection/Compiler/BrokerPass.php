@@ -31,15 +31,16 @@ class BrokerPass implements CompilerPassInterface
             }
         }
 
-        // a bit copied from the extension, but no choice here to retrieve the config
-        // without going through parameters...
-        $configs = $container->getExtensionConfig('wisembly_amqp');
-        $config = $container->getExtension('wisembly_amqp')->getConfig($configs);
-
-        if (!isset($brokers[$config['broker']])) {
-            throw new InvalidArgumentException(sprintf('Invalid broker "%s". Expected one of those : [%s]', $config['broker'], implode(', ', array_keys($brokers))));
+        if (false === $container->hasParameter('wisembly.amqp.config.broker')) {
+            throw new InvalidArgumentException('The expected container parameter "wisembly.amqp.config.broker" is missing');
         }
 
-        $container->setAlias(BrokerInterface::class, $brokers[$config['broker']]);
+        $broker = $container->getParameter('wisembly.amqp.config.broker');
+
+        if (!isset($brokers[$broker])) {
+            throw new InvalidArgumentException(sprintf('Invalid broker "%s". Expected one of those : [%s]', $broker, implode(', ', array_keys($brokers))));
+        }
+
+        $container->setAlias(BrokerInterface::class, $brokers[$broker]);
     }
 }

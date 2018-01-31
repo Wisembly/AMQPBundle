@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Prophecy\ProphecyInterface;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 use Wisembly\AmqpBundle\BrokerInterface;
 use Wisembly\AmqpBundle\DependencyInjection\WisemblyAmqpExtension;
@@ -59,12 +60,11 @@ class BrokerPassTest extends TestCase
         ];
 
         $extension = $this->prophesize(WisemblyAmqpExtension::class);
-        $extension->getConfig([])->willReturn(['broker' => $broker])->shouldBeCalled();
 
         $container = $this->prophesize(ContainerBuilder::class);
+        $container->hasParameter('wisembly.amqp.config.broker')->willReturn(true)->shouldBeCalled();
+        $container->getParameter('wisembly.amqp.config.broker')->willReturn($broker)->shouldBeCalled();
         $container->findTaggedServiceIds('wisembly.amqp.broker')->willReturn($services)->shouldBeCalled();
-        $container->getExtensionConfig('wisembly_amqp')->willReturn([])->shouldBeCalled();
-        $container->getExtension('wisembly_amqp')->willReturn($extension)->shouldBeCalled();
 
         return $container;
     }
