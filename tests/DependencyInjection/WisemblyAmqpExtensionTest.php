@@ -41,6 +41,13 @@ class WisemblyAmqpExtensionTest extends TestCase
         $this->assertFalse($container->hasDefinition(PeclBroker::class));
     }
 
+    public function test_it_registers_a_broker_parameter_to_be_used_in_compiler_pass()
+    {
+        $container = $this->getContainer([]);
+
+        $this->assertTrue($container->hasParameter('wisembly.amqp.config.broker'));
+    }
+
     /**
      * @requires extension amqp
      */
