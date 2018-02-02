@@ -58,7 +58,7 @@ class ConsumerCommand extends Command
 
         $memoryLimit = $input->getOption('memory-limit');
         // if the memory limit looks like an int, cast it to a strict int
-        if (null !== $input && false !== filter_var($input, FILTER_VALIDATE_INT)) {
+        if (null !== $memoryLimit && false !== filter_var($memoryLimit, FILTER_VALIDATE_INT)) {
             $memoryLimit = (int) $memoryLimit;
         }
 
