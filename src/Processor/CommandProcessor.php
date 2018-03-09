@@ -33,7 +33,7 @@ class CommandProcessor implements ProcessorInterface, ConfigurableInterface
     {
         $body = json_decode($message->getBody(), true);
 
-        $this->logger->info('Dispatching command', $body);
+        $this->logger->info('Dispatching command', ['body' => $body]);
 
         // if no proper command given, log it
         if (!isset($body['command'])) {
@@ -61,7 +61,7 @@ class CommandProcessor implements ProcessorInterface, ConfigurableInterface
                 }
             });
 
-            $this->logger->info('The process was successful', $body);
+            $this->logger->info('The process was successful', ['body' => $body]);
         } catch (ProcessFailedException $e) {
             $this->logger->error('The command failed ; aborting', ['body' => $body, 'code' => $process->getExitCodeText()]);
 
