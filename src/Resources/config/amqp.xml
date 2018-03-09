@@ -8,6 +8,8 @@
         <defaults public="false" autowire="true" autoconfigure="true" />
 
         <service id="Wisembly\AmqpBundle\Processor\ConsumerFactory">
+            <argument type="service" id="logger" />
+
             <tag name="monolog.logger" channel="amqp" />
         </service>
 
