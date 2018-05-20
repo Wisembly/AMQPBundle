@@ -44,6 +44,8 @@ class UriConnection extends Connection
             $parse['path'] = substr($parse['path'], 1);
         }
 
+        $parse = array_map('rawurldecode', $parse);
+
         return [
             'host' => $parse['host'],
             'port' => $parse['port'] ?? null,
