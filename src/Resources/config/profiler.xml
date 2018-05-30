@@ -10,7 +10,7 @@
         <service id="Wisembly\AmqpBundle\DataCollector\CollectorInjector">
             <argument type="service">
                 <service class="Wisembly\AmqpBundle\DataCollector\AMQPDataCollector">
-                    <tag name="data_collector" template="WisemblyAmqpBundle:Collector:MessageCollector" id="amqp_collector" />
+                    <tag name="data_collector" template="@WisemblyAmqp/Collector/MessageCollector" id="amqp_collector" />
                 </service>
             </argument>
 
